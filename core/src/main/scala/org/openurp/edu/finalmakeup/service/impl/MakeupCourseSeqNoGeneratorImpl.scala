@@ -18,16 +18,14 @@
  */
 package org.openurp.edu.finalmakeup.service.impl
 
-import scala.collection.mutable.Buffer
-
 import org.beangle.commons.collection.Collections
-import org.beangle.commons.lang.Numbers
-import org.beangle.commons.lang.Strings
-import org.beangle.data.dao.EntityDao
-import org.beangle.data.dao.OqlBuilder
+import org.beangle.commons.lang.{Numbers, Strings}
+import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.openurp.edu.base.model.Semester
 import org.openurp.edu.exam.model.FinalMakeupCourse
 import org.openurp.edu.finalmakeup.service.MakeupCourseSeqNoGenerator
+
+import scala.collection.mutable
 
 object MakeupCourseSeqNoGeneratorImpl {
   val initSeqNo = "0001"
@@ -42,7 +40,7 @@ class MakeupCourseSeqNoGeneratorImpl extends MakeupCourseSeqNoGenerator {
     this synchronized {
       val seqNos = loadSeqNo(makeupCourse.semester)
       var newSeqNo = 0
-      var breaked = false;
+      var breaked = false
       for (s <- seqNos if !breaked) {
         val seqNo = s.substring(MakeupCourseSeqNoGeneratorImpl.prefix.length)
         if (!seqNo.matches(".*[^\\d]+.*")) {
@@ -58,7 +56,7 @@ class MakeupCourseSeqNoGeneratorImpl extends MakeupCourseSeqNoGenerator {
     }
   }
   private def putSeqNo(makeupCourse: FinalMakeupCourse, seqNo: Int): Unit = {
-    makeupCourse.crn = ("BK" + Strings.repeat("0", 4 - String.valueOf(seqNo).length) + seqNo)
+    makeupCourse.crn =  "BK" + Strings.repeat("0", 4 - String.valueOf(seqNo).length) + seqNo
   }
 
   private def loadSeqNo(semester: Semester): Seq[String] = {
@@ -70,7 +68,7 @@ class MakeupCourseSeqNoGeneratorImpl extends MakeupCourseSeqNoGenerator {
   }
 
   def genSeqNos(makeupCourses: collection.Seq[FinalMakeupCourse]): Unit = {
-    val courseBySemesterMap = Collections.newMap[Semester, Buffer[FinalMakeupCourse]]
+    val courseBySemesterMap = Collections.newMap[Semester, mutable.Buffer[FinalMakeupCourse]]
     for (makeupCourse <- makeupCourses) {
       if (Strings.isEmpty(makeupCourse.crn)) {
         courseBySemesterMap.getOrElseUpdate(makeupCourse.semester, Collections.newBuffer[FinalMakeupCourse]) += makeupCourse
@@ -103,7 +101,7 @@ class MakeupCourseSeqNoGeneratorImpl extends MakeupCourseSeqNoGenerator {
             if (allocated >= courses.size) {
               i = gap //break
             } else {
-              i += 1;
+              i += 1
             }
           }
 

@@ -25,8 +25,7 @@ import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
 import org.openurp.edu.base.model.Student
 import org.openurp.edu.base.web.ProjectSupport
-import org.openurp.edu.exam.model.FinalMakeupCourse
-import org.openurp.edu.exam.model.FinalMakeupTaker
+import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 
 class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
 

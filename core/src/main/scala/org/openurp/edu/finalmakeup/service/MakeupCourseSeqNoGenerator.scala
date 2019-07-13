@@ -19,6 +19,7 @@
 package org.openurp.edu.finalmakeup.service
 
 import org.openurp.edu.exam.model.FinalMakeupCourse
+
 trait MakeupCourseSeqNoGenerator {
 
   def genSeqNo(makeupCourse: FinalMakeupCourse): Unit

@@ -8,9 +8,9 @@
   </parent>
   <groupId>org.openurp.edu.finalmakeup</groupId>
   <artifactId>openurp-edu-finalmakeup-parent</artifactId>
-  <version>0.0.5-SNAPSHOT</version>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>OpenURP Edu finalmakeup Parent</name>
+  <name>OpenURP Edu Finalmakeup Parent</name>
 
   <modules>
     <module>core</module>
@@ -21,7 +21,8 @@
     <openurp.boot.version>0.0.6-SNAPSHOT</openurp.boot.version>
     <openurp.app.version>0.1.17-SNAPSHOT</openurp.app.version>
     <openurp.api.version>0.10.0</openurp.api.version>
-	<openurp.edu.base.version>0.0.27-SNAPSHOT</openurp.edu.base.version>
+  	<openurp.edu.base.version>0.0.27-SNAPSHOT</openurp.edu.base.version>
+	  <openurp.edu.grade.version>0.0.1-SNAPSHOT</openurp.edu.grade.version>
   </properties>
 
 </project>

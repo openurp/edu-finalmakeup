@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.openurp.edu.finalmakeup</groupId>
     <artifactId>openurp-edu-finalmakeup-parent</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.openurp.edu.finalmakeup</groupId>
@@ -26,6 +26,11 @@
       <groupId>org.openurp.edu.graduation</groupId>
       <artifactId>openurp-edu-graduation-api</artifactId>
       <version>${openurp.api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openurp.edu.grade</groupId>
+      <artifactId>openurp-edu-grade-core</artifactId>
+      <version>${openurp.edu.grade.version}</version>
     </dependency>
     <dependency>
       <groupId>org.openurp.edu.base</groupId>

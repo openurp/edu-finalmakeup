@@ -16,45 +16,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.openurp.edu.exam.finalmakeup.web.action
+package org.openurp.edu.finalmakeup.web.action
 
-import java.util.Date
+import java.time.Instant
 
-import org.beangle.commons.collection.Order
 import org.beangle.commons.collection.Collections
-import org.beangle.commons.lang.Strings
+import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.data.dao.OqlBuilder
+import org.beangle.webmvc.api.annotation.ignore
+import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
-import org.openurp.code.edu.model.{ExamStatus, GradeType, GradingMode}
-import org.openurp.edu.base.model.{Course, Semester, Squad, Teacher}
+import org.openurp.base.model.Department
+import org.openurp.code.edu.model.{CourseTakeType, ExamStatus, GradeType, GradingMode}
+import org.openurp.code.service.CodeService
+import org.openurp.edu.base.model._
+import org.openurp.edu.base.service.SemesterService
 import org.openurp.edu.base.web.ProjectSupport
-import org.openurp.edu.exam.model.FinalMakeupCourse
+import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
+import org.openurp.edu.finalmakeup.service.MakeupCourseSeqNoGenerator
 import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
+import org.openurp.edu.grade.course.model.{CourseGrade, CourseGradeState, ExamGrade}
+import org.openurp.edu.grade.course.service.CourseGradeCalculator
+import org.openurp.edu.grade.model.Grade
 import org.openurp.edu.graduation.audit.model.{GraduateResult, GraduateSession}
 import org.openurp.edu.graduation.plan.model.CourseAuditResult
-import org.openurp.edu.finalmakeup.service.MakeupCourseSeqNoGenerator
-import org.beangle.webmvc.api.view.View
-import org.openurp.edu.finalmakeup.web.helper.CourseGradeCalculator
-import org.openurp.edu.grade.model.Grade
-import org.beangle.security.session.protobuf.Model
-import org.openurp.edu.finalmakeup.web.helper.SemesterService
-import org.openurp.edu.grade.course.model.CourseGrade
-import org.openurp.edu.base.model.Student
-import org.openurp.base.model.Department
-import org.openurp.edu.exam.model.FinalMakeupTaker
-import org.beangle.commons.lang.Numbers
-import org.openurp.code.service.CodeService
-import org.openurp.code.edu.model.CourseTakeType
-import java.time.Instant
-import org.openurp.edu.grade.course.model.CourseGradeState
-import org.openurp.edu.grade.course.model.ExamGrade
-import org.beangle.webmvc.api.annotation.ignore
 
 class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport {
-  var generator: MakeupCourseSeqNoGenerator = null
-  var calcualtor: CourseGradeCalculator = null
-  var semesterService: SemesterService = null
-
+  var generator: MakeupCourseSeqNoGenerator = _
+  var calcualtor: CourseGradeCalculator = _
+  var semesterService: SemesterService = _
   var codeService: CodeService = _
 
   override def index: View = {
@@ -113,13 +103,13 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     builder.where("courseResult.passed=false")
     builder.where("courseResult.course.hasMakeup=true")
     // 按照有不及格的成绩来，不要采用courseResult.scores is not null
-    builder.where("exists(from " + classOf[Nothing].getName + " cg where cg.std=std2 and cg.course=courseResult.course)")
+    builder.where("exists(from " + classOf[CourseGrade].getName + " cg where cg.std=std2 and cg.course=courseResult.course)")
     builder.where("std2.graduateOn=:graduateOn", session.graduateOn)
     builder.join("courseResult.groupResult.planResult.std", "std2")
     builder.where("exists(from " + classOf[GraduateResult].getName + " gr where gr.session.id=" + session.id + " and gr.std=std2)")
     val hql = new StringBuilder
     hql.append("not exists (")
-    hql.append("  from ").append(classOf[Nothing].getName).append(" taker")
+    hql.append("  from ").append(classOf[FinalMakeupTaker].getName).append(" taker")
     hql.append(" where taker.task.semester.id=" + semester.id)
     hql.append("   and taker.task.course = courseResult.course")
     hql.append("   and taker.std = std2")
@@ -164,7 +154,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
       }
       entityDao.saveOrUpdate(makeupCourse)
     }
-    return redirect("newCourseList", "info.save.success")
+    redirect("newCourseList", "info.save.success")
   }
 
   private def getMakeupCourse(semester: Semester, department: Department, squad: Squad, course: Course): FinalMakeupCourse = {
@@ -179,7 +169,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
       makeupCourse.semester = semester
       makeupCourse.course = course
       makeupCourse.depart = department
-      if (null != squad) makeupCourse.squads += (squad)
+      if (null != squad) makeupCourse.squads += squad
       generator.genSeqNo(makeupCourse)
       entityDao.saveOrUpdate(makeupCourse)
       makeupCourse
@@ -212,7 +202,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
         newMc.semester = makeupCourse.semester
         for (taker <- makeupCourse.takers) {
           if (squad.id.equals(taker.std.state.map(_.squad.map(_.id)).getOrElse(0))) {
-            newMc.takers += (new FinalMakeupTaker(newMc, taker.std, taker.courseType))
+            newMc.takers += new FinalMakeupTaker(newMc, taker.std, taker.courseType)
           }
         }
         newMc.stdCount = newMc.takers.size
@@ -305,8 +295,8 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     }
     put("gradeMap", gradeMap)
     put("gradeTypes", List(entityDao.get(classOf[GradeType], GradeType.Makeup)))
-    val MAKEUP = entityDao.get(classOf[Nothing], GradeType.Makeup)
-    val MAKEUP_GA = entityDao.get(classOf[Nothing], GradeType.MakeupGa)
+    val MAKEUP = entityDao.get(classOf[GradeType], GradeType.Makeup)
+    val MAKEUP_GA = entityDao.get(classOf[GradeType], GradeType.MakeupGa)
     put("MAKEUP", MAKEUP)
     put("MAKEUP_GA", MAKEUP_GA)
     forward()
@@ -320,14 +310,14 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     }
     put("gradeMap", getCourseGradeMap(makeupCourse))
     put("gradeTypes", List(entityDao.get(classOf[GradeType], GradeType.Makeup)))
-    val examStatuses = codeService.getCodes(classOf[ExamStatus]).toBuffer
+    val examStatuses = codeService.get(classOf[ExamStatus]).toBuffer
     val removed = Collections.newBuffer[ExamStatus]
     for (es <- examStatuses) {
       if (es.deferred) removed += es
     }
     examStatuses --= removed
     put("examStatuses", examStatuses)
-    put("NormalExamStatus", codeService.getCode(classOf[ExamStatus], ExamStatus.Normal))
+    put("NormalExamStatus", codeService.get(classOf[ExamStatus], ExamStatus.Normal))
     forward()
   }
 
@@ -399,7 +389,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     grade.status = 0
     //    grade.createdAt=Instant.now
     grade.updatedAt = Instant.now
-    return grade
+    grade
   }
 
   def editPublished(): View = {
