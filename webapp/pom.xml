@@ -23,6 +23,11 @@
       <version>${openurp.edu.base.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.openurp.edu.base</groupId>
+      <artifactId>openurp-edu-base-tag</artifactId>
+      <version>${openurp.edu.base.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.openurp.edu</groupId>
       <artifactId>openurp-edu-boot</artifactId>
       <version>${openurp.boot.version}</version>

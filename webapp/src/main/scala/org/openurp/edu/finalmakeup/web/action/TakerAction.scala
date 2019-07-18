@@ -25,14 +25,58 @@ import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
 import org.openurp.edu.base.model.Student
 import org.openurp.edu.base.web.ProjectSupport
-import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
+import org.openurp.edu.exam.model.{ FinalMakeupCourse, FinalMakeupTaker }
+import org.openurp.edu.base.model.Semester
+import java.time.LocalDate
+import org.beangle.webmvc.api.annotation.ignore
 
 class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
+
+  @ignore
+  protected override def simpleEntityName: String = {
+    "makeupTaker"
+  }
+
+  override def indexSetting(): Unit = {
+    val semesterId = getInt("semester.id")
+    val semester = {
+      semesterId match {
+        case None =>
+          getCurrentSemester()
+        case _ => entityDao.get(classOf[Semester], semesterId.get)
+      }
+    }
+    put("currentSemester", semester)
+    super.indexSetting()
+  }
+
+  def getCurrentSemester(): Semester = {
+    val builder = OqlBuilder.from(classOf[Semester], "semester")
+      .where("semester.calendar in(:calendars)", getProject.calendars)
+    builder.where(":date between semester.beginOn and  semester.endOn", LocalDate.now)
+    builder.cacheable()
+    val rs = entityDao.search(builder)
+    if (rs.isEmpty) {
+      val builder2 = OqlBuilder.from(classOf[Semester], "semester")
+        .where("semester.calendar in(:calendars)", getProject.calendars)
+      builder2.orderBy("abs(semester.beginOn - current_date() + semester.endOn - current_date())")
+      builder2.cacheable()
+      builder2.limit(1, 1)
+      val rs2 = entityDao.search(builder2)
+      if (rs2.nonEmpty) {
+        rs2.head
+      } else {
+        null
+      }
+    } else {
+      rs.head
+    }
+  }
 
   def stat: View = {
     val semesterId = getLong("semester.id")
     val query: OqlBuilder[Array[Any]] = OqlBuilder.from(classOf[FinalMakeupTaker].getName, "t")
-    query.where("take.task.semester.id=:semesterId", semesterId)
+    query.where("take.makeupCourse.semester.id=:semesterId", semesterId)
     query.groupBy("t.std.id")
     query.select("t.std.id,count(t.id)")
     val rs = entityDao.search(query)
@@ -65,24 +109,27 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
   }
 
   def addTakes: View = {
-    val seqNo = get("task.seqNo")
     val semesterId = getInt("semester.id")
     val query = OqlBuilder.from(classOf[FinalMakeupCourse], "task")
-    query.where("task.semester.id=:semesterId", semesterId)
-    query.where("task.crn=:crn", seqNo)
+    getInt("semester.id").foreach(semesterId => { query.where("task.semester.id=:semesterId", semesterId) })
+    get("makeupCourse.crn").foreach(seqNo => { query.where("task.crn=:crn", seqNo) })
     val tasks = entityDao.search(query)
     var stdCode = get("stdCodes").orNull
     stdCode = Strings.replace(stdCode, " ", ",")
     val stdCodes = Strings.split(stdCode, ",")
     val stds = entityDao.findBy(classOf[Student], "user.code", stdCodes.toList)
-    for (std <- stds) {
-      val task = tasks.head
-      val courseType = task.course.courseType
-      val take = new FinalMakeupTaker(task, std, courseType)
-      task.takers += take
-      task.stdCount = task.stdCount + 1
+    if (stds.isEmpty) {
+      redirect("search", "&makeupTaker.makeupCourse.semester.id=" + semesterId.get, "不存在该学号学生")
+    }else{
+      stds.foreach(std => {
+        val task = tasks.head
+            val courseType = task.course.courseType
+            val take = new FinalMakeupTaker(task, std, courseType)
+            task.takers += take
+            task.stdCount = task.stdCount + 1
+      })
+      entityDao.saveOrUpdate(tasks)
+      redirect("search", "&makeupTaker.makeupCourse.semester.id=" + semesterId.get, "info.save.success")
     }
-    entityDao.saveOrUpdate(tasks)
-    redirect("search", "info.save.success", "&makeupTaker.task.semester.id=" + semesterId)
   }
 }

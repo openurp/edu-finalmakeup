@@ -21,30 +21,31 @@ package org.openurp.edu.finalmakeup.web.action
 import java.time.Instant
 
 import org.beangle.commons.collection.Collections
-import org.beangle.commons.lang.{Numbers, Strings}
+import org.beangle.commons.lang.{ Numbers, Strings }
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.webmvc.api.annotation.ignore
 import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
 import org.openurp.base.model.Department
-import org.openurp.code.edu.model.{CourseTakeType, ExamStatus, GradeType, GradingMode}
+import org.openurp.code.edu.model.{ CourseTakeType, ExamStatus, GradeType, GradingMode }
 import org.openurp.code.service.CodeService
 import org.openurp.edu.base.model._
 import org.openurp.edu.base.service.SemesterService
 import org.openurp.edu.base.web.ProjectSupport
-import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
+import org.openurp.edu.exam.model.{ FinalMakeupCourse, FinalMakeupTaker }
 import org.openurp.edu.finalmakeup.service.MakeupCourseSeqNoGenerator
-import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
-import org.openurp.edu.grade.course.model.{CourseGrade, CourseGradeState, ExamGrade}
+import org.openurp.edu.finalmakeup.web.helper.{ MakeupMatrix, MakeupStat }
+import org.openurp.edu.grade.course.model.{ CourseGrade, CourseGradeState, ExamGrade }
 import org.openurp.edu.grade.course.service.CourseGradeCalculator
 import org.openurp.edu.grade.model.Grade
-import org.openurp.edu.graduation.audit.model.{GraduateResult, GraduateSession}
+import org.openurp.edu.graduation.audit.model.{ GraduateResult, GraduateSession }
 import org.openurp.edu.graduation.plan.model.CourseAuditResult
+import java.time.LocalDate
 
 class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport {
   var generator: MakeupCourseSeqNoGenerator = _
   var calcualtor: CourseGradeCalculator = _
-  var semesterService: SemesterService = _
+  //  var semesterService: SemesterService = _
   var codeService: CodeService = _
 
   override def index: View = {
@@ -54,9 +55,32 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     query.orderBy("session.graduateOn desc,session.name desc")
     val sessions = entityDao.search(query)
     put("sessions", sessions)
-    val semester = semesterService.get(getProject, sessions.head.graduateOn)
+    val semester = getSemester(getProject, sessions.head.graduateOn)
     put("semester", semester)
     forward()
+  }
+
+  protected def getSemester(project: Project, date: LocalDate): Semester = {
+    val builder = OqlBuilder.from(classOf[Semester], "semester")
+      .where("semester.calendar in(:calendars)", project.calendars)
+    builder.where(":date between semester.beginOn and  semester.endOn", date)
+    builder.cacheable()
+    val rs = entityDao.search(builder)
+    if (rs.isEmpty) {
+      val builder2 = OqlBuilder.from(classOf[Semester], "semester")
+        .where("semester.calendar in(:calendars)", project.calendars)
+      builder2.orderBy("abs(semester.beginOn - current_date() + semester.endOn - current_date())")
+      builder2.cacheable()
+      builder.limit(1, 2)
+      val rs2 = entityDao.search(builder2)
+      if (rs2.nonEmpty) {
+        rs2.head
+      } else {
+        null
+      }
+    } else {
+      rs.head
+    }
   }
 
   protected override def getQueryBuilder: OqlBuilder[FinalMakeupCourse] = {
@@ -81,7 +105,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
 
   def newCourseList: View = {
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
-    val semester = semesterService.get(getProject, session.graduateOn)
+    val semester = getSemester(getProject, session.graduateOn)
     put("semester", semester)
     val builder: OqlBuilder[Any] = OqlBuilder.from(classOf[CourseAuditResult].getName, "courseResult")
     builderMakeupQuery(builder, session, semester)
@@ -110,8 +134,8 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     val hql = new StringBuilder
     hql.append("not exists (")
     hql.append("  from ").append(classOf[FinalMakeupTaker].getName).append(" taker")
-    hql.append(" where taker.task.semester.id=" + semester.id)
-    hql.append("   and taker.task.course = courseResult.course")
+    hql.append(" where taker.makeupCourse.semester.id=" + semester.id)
+    hql.append("   and taker.makeupCourse.course = courseResult.course")
     hql.append("   and taker.std = std2")
     hql.append(")")
     builder.where(hql.toString)
@@ -120,7 +144,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   def addCourse: View = {
     val courseDepartClassIds = ids("makeupStat", classOf[String])
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
-    val semester = semesterService.get(getProject, session.graduateOn)
+    val semester = getSemester(getProject, session.graduateOn)
     put("semester", semester)
     for (courseDepartClassId <- courseDepartClassIds) {
       val idArray = Strings.split(courseDepartClassId, "-")
@@ -216,21 +240,21 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
 
   def squadStat(): View = {
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
-    val semester = semesterService.get(getProject, session.graduateOn)
+    val semester = getSemester(getProject, session.graduateOn)
     put("semester", semester)
     val departs = getDeparts
     put("departments", departs)
     val builder: OqlBuilder[Array[Any]] = OqlBuilder.from(classOf[FinalMakeupTaker].getName, "mt")
-    builder.where("mt.task.semester=:semester", semester)
+    builder.where("mt.makeupCourse.semester=:semester", semester)
     val depart = getInt("department.id") match {
       case None => departs.head
       case Some(d) => entityDao.get(classOf[Department], d)
     }
     put("department", depart)
-    builder.where("mt.task.depart  = :depart", depart)
+    builder.where("mt.makeupCourse.depart  = :depart", depart)
     builder.where("mt.std.state.squad is not null")
-    builder.groupBy("mt.std.state.squad.id,mt.task.course.id")
-    builder.select("mt.std.state.squad.id,mt.task.course.id,count(*)")
+    builder.groupBy("mt.std.state.squad.id,mt.makeupCourse.course.id")
+    builder.select("mt.std.state.squad.id,mt.makeupCourse.course.id,count(*)")
     val stats = entityDao.search(builder)
     val matrix = new MakeupMatrix
     for (data <- stats) {
@@ -280,8 +304,9 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   def printGrade(): View = {
+    val a = longIds("makeupCourse")
     val builder = OqlBuilder.from(classOf[FinalMakeupCourse], "makeupCourse")
-    builder.where("makeupCourse.id in (:makeupCourseIds)", longIds("makeupCourse"))
+    builder.where("makeupCourse.id in (:makeupCourseIds)", a)
     builder.where("makeupCourse.confirmed = true")
     val makeupCourses = entityDao.search(builder)
     put("makeupCourses", makeupCourses)
@@ -306,7 +331,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     val makeupCourse = entityDao.get(classOf[FinalMakeupCourse], longId("makeupCourse"))
     put("makeupCourse", makeupCourse)
     if (makeupCourse.confirmed) {
-      return redirect("printGrade", "info.save.success", "&makeupCourseIds=" + makeupCourse.id)
+      return redirect("printGrade", "&makeupCourseIds=" + makeupCourse.id, "info.save.success")
     }
     put("gradeMap", getCourseGradeMap(makeupCourse))
     put("gradeTypes", List(entityDao.get(classOf[GradeType], GradeType.Makeup)))
