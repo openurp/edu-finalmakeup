@@ -16,18 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.openurp.edu.finalmakeup.web
+package org.openurp.edu.graduation.makeup.model
 
-import org.beangle.cdi.bind.BindModule
-import org.openurp.edu.finalmakeup.web.action.CourseAction
-import org.openurp.edu.finalmakeup.web.action.TakerAction
-import org.openurp.edu.base.service.impl.SemesterServiceImpl
-import org.openurp.code.service.impl.CodeServiceImpl
+import org.beangle.data.orm.MappingModule
 
-class DefaultModule extends BindModule {
+class DefaultMapping extends MappingModule {
 
-  protected override def binding() {
-    bind(classOf[CourseAction], classOf[TakerAction])
-    bind(classOf[CodeServiceImpl])
+  def binding(): Unit = {
+
   }
+
 }

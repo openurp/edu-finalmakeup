@@ -26,9 +26,9 @@ package org.openurp.edu.finalmakeup.web.helper
 class MakeupStat(val datas: Array[AnyRef]) {
   var courseId: Long = 0L
   var departmentId: Int = 0
-  var courseCode: String = null
-  var courseName: String = null
-  var stdDepartmentName: String = null
+  var courseCode: String = _
+  var courseName: String = _
+  var stdDepartmentName: String = _
   var stdSquadId: Option[Int] = None
   var stdSquadCode: Option[String] = None
   var stdSquadName: Option[String] = None
@@ -46,6 +46,8 @@ class MakeupStat(val datas: Array[AnyRef]) {
   }
   stdCount = datas(8).asInstanceOf[Number].intValue
 
-  def id: String = departmentId + "-" + courseId + "-" + stdSquadId.getOrElse("")
+  def id: String = {
+    s"${departmentId}-${courseId}-${stdSquadId.getOrElse("")}"
+  }
 
 }

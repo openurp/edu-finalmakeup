@@ -18,29 +18,27 @@
  */
 package org.openurp.edu.finalmakeup.web.action
 
-import java.time.Instant
+import java.time.{Instant, LocalDate}
 
 import org.beangle.commons.collection.Collections
-import org.beangle.commons.lang.{ Numbers, Strings }
+import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.webmvc.api.annotation.ignore
 import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
 import org.openurp.base.model.Department
-import org.openurp.code.edu.model.{ CourseTakeType, ExamStatus, GradeType, GradingMode }
+import org.openurp.code.edu.model.{CourseTakeType, ExamStatus, GradeType, GradingMode}
 import org.openurp.code.service.CodeService
 import org.openurp.edu.base.model._
-import org.openurp.edu.base.service.SemesterService
 import org.openurp.edu.base.web.ProjectSupport
-import org.openurp.edu.exam.model.{ FinalMakeupCourse, FinalMakeupTaker }
+import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseSeqNoGenerator
-import org.openurp.edu.finalmakeup.web.helper.{ MakeupMatrix, MakeupStat }
-import org.openurp.edu.grade.course.model.{ CourseGrade, CourseGradeState, ExamGrade }
+import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
+import org.openurp.edu.grade.course.model.{CourseGrade, CourseGradeState, ExamGrade}
 import org.openurp.edu.grade.course.service.CourseGradeCalculator
 import org.openurp.edu.grade.model.Grade
-import org.openurp.edu.graduation.audit.model.{ GraduateResult, GraduateSession }
+import org.openurp.edu.graduation.audit.model.{GraduateResult, GraduateSession}
 import org.openurp.edu.graduation.plan.model.CourseAuditResult
-import java.time.LocalDate
 
 class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport {
   var generator: MakeupCourseSeqNoGenerator = _
@@ -367,7 +365,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     val MAKEUP = entityDao.get(classOf[GradeType], GradeType.Makeup)
     val state = new CourseGradeState
     for (taker <- makeupCourse.takers) {
-      val score = getFloat(MAKEUP.id + "_" + taker.std.id)
+      val score = getFloat(s"${MAKEUP.id}_${taker.std.id}")
       val examStatusInputId = "examStatus_" + MAKEUP.id + "_" + taker.std.id
       val examStatusId = getInt(examStatusInputId, 0)
       if (null != score || examStatusId != ExamStatus.Normal) {

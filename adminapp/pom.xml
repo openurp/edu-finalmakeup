@@ -7,7 +7,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.openurp.edu.finalmakeup</groupId>
-  <artifactId>openurp-edu-finalmakeup-webapp</artifactId>
+  <artifactId>openurp-edu-finalmakeup-adminapp</artifactId>
   <packaging>war</packaging>
   <name>Openurp Edu Finalmakeup Webapp</name>
 

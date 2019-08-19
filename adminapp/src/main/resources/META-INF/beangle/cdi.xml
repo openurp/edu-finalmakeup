@@ -2,7 +2,6 @@
 <cdi>
   <container name="web">
     <module class="org.openurp.edu.finalmakeup.web.DefaultModule"/>
-    <module class="org.openurp.edu.web.view.TagModule" />
     <module class="org.openurp.edu.boot.web.ProjectModule" />
   </container>
 </cdi>
