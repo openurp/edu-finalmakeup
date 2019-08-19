@@ -44,7 +44,7 @@
           <input type="hidden" name="makeupCourse.semester.id" value="${semester.id}">
         [/@]
       </td>
-      <td class="index_content">[@b.div id="makeupCourses" href="!search?semester.id="+semester.id/]</td>
+      <td class="index_content">[@b.div id="makeupCourses" href="!search?makeupCourse.semester.id="+semester.id/]</td>
     </tr>
   </table>
 [@b.foot/]

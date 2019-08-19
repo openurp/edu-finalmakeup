@@ -53,7 +53,11 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     query.orderBy("session.graduateOn desc,session.name desc")
     val sessions = entityDao.search(query)
     put("sessions", sessions)
-    val semester = getSemester(getProject, sessions.head.graduateOn)
+    val session = getInt("session.id") match {
+      case None => sessions.head
+      case Some(sid) => sessions.find(_.id == sid).getOrElse(sessions.head)
+    }
+    val semester = getSemester(getProject, session.graduateOn)
     put("semester", semester)
     forward()
   }
