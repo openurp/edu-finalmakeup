@@ -23,5 +23,6 @@
     form.action="${b.url('!search')}";
     bg.form.submit(form)
   }
+  document.semesterForm.method="GET";
  </script>
 [@b.foot/]

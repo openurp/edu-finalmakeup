@@ -23,6 +23,7 @@ import java.time.{Instant, LocalDate}
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.data.dao.OqlBuilder
+import org.beangle.security.Securities
 import org.beangle.webmvc.api.annotation.ignore
 import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
@@ -143,7 +144,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     builder.where(hql.toString)
   }
 
-  def addCourse: View = {
+  def addCourse(): View = {
     val courseDepartClassIds = ids("makeupStat", classOf[String])
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
     val semester = getSemester(getProject, session.graduateOn)
@@ -292,7 +293,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
       }
     }
     entityDao.saveOrUpdate(makeupCourses)
-    redirect("editTeacher", "info.save.success", "&makeupCourseIds=" + get("makeupCourseIds"))
+    redirect("editTeacher", "&makeupCourseIds=" + get("makeupCourseIds"), "info.save.success")
   }
 
   def takers(): View = {
@@ -388,6 +389,8 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
         examGrade.status = status
         calcualtor.updateScore(examGrade, score, grade.gradingMode)
         calcualtor.calcAll(grade, state)
+        //grade.gaGrades foreach { ga => ga.operator = Securities.user }
+        //grade.examGrades foreach { ga => ga.operator = Securities.user }
         grades += grade
       }
     }
@@ -395,10 +398,10 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
       makeupCourse.confirmed = true
       makeupCourse.published = false
       entityDao.saveOrUpdate(grades, makeupCourse)
-      redirect("printGrade", "info.save.success", "&makeupCourseIds=" + makeupCourse.id)
+      redirect("printGrade", "&makeupCourseIds=" + makeupCourse.id, "info.save.success")
     } else {
       entityDao.saveOrUpdate(grades)
-      redirect("input", "info.save.success", "&makeupCourseId=" + makeupCourse.id)
+      redirect("input", "&makeupCourseId=" + makeupCourse.id, "info.save.success")
     }
   }
 
@@ -414,8 +417,9 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     grade.courseType = taker.courseType
     grade.gradingMode = gradingMode
     grade.status = 0
-    //    grade.createdAt=Instant.now
+    grade.examMode = taker.makeupCourse.course.examMode
     grade.updatedAt = Instant.now
+    grade.operator = Some(Securities.user)
     grade
   }
 

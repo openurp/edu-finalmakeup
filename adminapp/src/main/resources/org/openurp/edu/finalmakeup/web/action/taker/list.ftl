@@ -3,7 +3,7 @@
   [@b.grid items=makeupTakers var="makeupTaker"]
     [@b.gridbar]
       bar.addItem("添加", action.method("addSetting"));
-      bar.addItem("删除", action.multi('removestudent',"确定删除？"));
+      bar.addItem("删除", action.multi('removeTaker',"确定删除？"));
       bar.addItem("${b.text('action.export')}", "exportData()");
       function exportData(){
         var form = document.searchForm;

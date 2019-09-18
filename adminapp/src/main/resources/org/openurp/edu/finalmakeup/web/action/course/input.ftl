@@ -1,9 +1,7 @@
 [#ftl]
 [@b.head/]
-<script src="${base}/static/scripts/StringUtils.js"></script>
-<script language="JavaScript" type="text/JavaScript" src='${base}/dwr/engine.js'></script>
-<script language="JavaScript" type="text/JavaScript" src="${base}/static/scripts/grade/course/onreturn.js"></script>
-<script language="JavaScript" type="text/JavaScript" src="${base}/static/scripts/grade/course/input.js?ver=20181122"></script>
+ ${b.script("bui","js/OnReturn.js")}
+<script language="JavaScript" type="text/JavaScript" src="${base}/static/scripts/grade/input.js?ver=20181122"></script>
 [#macro gradeTd(grade, gradeType, courseTaker, index)]
     <td id="TD_${gradeType.id}_${courseTaker.std.id}">
       <input type="text" class="text"
