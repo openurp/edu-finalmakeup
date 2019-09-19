@@ -62,8 +62,8 @@ class MakeupCourseSeqNoGeneratorImpl extends MakeupCourseSeqNoGenerator {
   private def loadSeqNo(semester: Semester): Seq[String] = {
     val builder = OqlBuilder.from(classOf[FinalMakeupCourse].getName + " makeupCourse")
     builder.where("makeupCourse.semester = :semester", semester)
-    builder.orderBy("makeupCourse.seqNo")
-    builder.select("makeupCourse.seqNo")
+    builder.orderBy("makeupCourse.crn")
+    builder.select("makeupCourse.crn")
     entityDao.search(builder)
   }
 

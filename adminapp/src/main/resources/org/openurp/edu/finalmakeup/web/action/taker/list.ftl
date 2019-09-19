@@ -7,7 +7,7 @@
       bar.addItem("${b.text('action.export')}", "exportData()");
       function exportData(){
         var form = document.searchForm;
-        bg.form.addInput(form, "keys", "std.user.code,std.user.name,std.state.grade,std.state.campus.name,std.level.name,std.state.department.name,std.state.major.name,std.state.direction.name,std.state.squad.name,task.seqNo,task.course.code,task.course.name,scores,remark");
+        bg.form.addInput(form, "keys", "std.user.code,std.user.name,std.state.grade,std.state.campus.name,std.level.name,std.state.department.name,std.state.major.name,std.state.direction.name,std.state.squad.name,makeupCourse.crn,makeupCourse.course.code,makeupCourse.course.name,scores,remark");
         bg.form.addInput(form, "titles", "学号,姓名,年级,校区,培养层次,院系,专业,方向,班级,课程序号,课程代码,课程名称,最好成绩,备注");
         bg.form.addInput(form, "fileName", "毕业补考名单");
         bg.form.submit(form, "${b.url('!export')}","_self");
