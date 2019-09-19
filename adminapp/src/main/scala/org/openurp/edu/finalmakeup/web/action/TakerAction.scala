@@ -103,6 +103,7 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
         val task = tasks.head
         val courseType = task.course.courseType
         val take = new FinalMakeupTaker(task, std, courseType)
+        take.scores="--"
         task.takers += take
         task.stdCount = task.stdCount + 1
       })
