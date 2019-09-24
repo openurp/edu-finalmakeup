@@ -47,7 +47,7 @@ class MakeupStat(val datas: Array[AnyRef]) {
   stdCount = datas(8).asInstanceOf[Number].intValue
 
   def id: String = {
-    s"${departmentId}-${courseId}-${stdSquadId.getOrElse("")}"
+    s"${departmentId}-${courseId}-${stdSquadId.getOrElse("null")}"
   }
 
 }

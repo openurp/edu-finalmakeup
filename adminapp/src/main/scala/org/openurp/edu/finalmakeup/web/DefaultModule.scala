@@ -22,13 +22,12 @@ import org.beangle.cdi.bind.BindModule
 import org.openurp.code.service.impl.CodeServiceImpl
 import org.openurp.edu.finalmakeup.service.impl.MakeupCourseSeqNoGeneratorImpl
 import org.openurp.edu.finalmakeup.web.action.{CourseAction, TakerAction}
-import org.openurp.edu.grade.course.service.impl.DefaultCourseGradeCalculator
 
 class DefaultModule extends BindModule {
 
   protected override def binding(): Unit = {
     bind(classOf[CourseAction], classOf[TakerAction])
     bind(classOf[CodeServiceImpl])
-    bind(classOf[MakeupCourseSeqNoGeneratorImpl],classOf[DefaultCourseGradeCalculator])
+    bind(classOf[MakeupCourseSeqNoGeneratorImpl])
   }
 }
