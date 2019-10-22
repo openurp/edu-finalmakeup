@@ -79,10 +79,15 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
   }
 
   def addSetting(): View = {
+    val semesterId = getInt("makeupTaker.makeupCourse.semester.id")
+    val query = OqlBuilder.from(classOf[FinalMakeupCourse], "task")
+    query.where("task.semester.id=:semesterId",semesterId.get)
+    query.orderBy("task.course.name,task.crn")
+    put("tasks",entityDao.search(query));
     forward()
   }
 
-  def addTakes(): View = {
+  def addTakers(): View = {
     val semesterId = getInt("semester.id")
     val query = OqlBuilder.from(classOf[FinalMakeupCourse], "task")
     getInt("semester.id").foreach(semesterId => {

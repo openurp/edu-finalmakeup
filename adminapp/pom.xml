@@ -9,33 +9,13 @@
   <groupId>org.openurp.edu.finalmakeup</groupId>
   <artifactId>openurp-edu-finalmakeup-adminapp</artifactId>
   <packaging>war</packaging>
-  <name>Openurp Edu Finalmakeup Webapp</name>
+  <name>Openurp Edu Finalmakeup Adminapp</name>
 
   <dependencies>
     <dependency>
       <groupId>org.openurp.edu.finalmakeup</groupId>
-      <artifactId>openurp-edu-finalmakeup-core</artifactId>
+      <artifactId>openurp-edu-finalmakeup-web</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openurp.edu.base</groupId>
-      <artifactId>openurp-edu-base-web</artifactId>
-      <version>${openurp.edu.web.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openurp.edu.base</groupId>
-      <artifactId>openurp-edu-base-tag</artifactId>
-      <version>${openurp.edu.web.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openurp.edu</groupId>
-      <artifactId>openurp-edu-boot</artifactId>
-      <version>${openurp.edu.web.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openurp.app</groupId>
-      <artifactId>openurp-app-api</artifactId>
-      <version>${openurp.app.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

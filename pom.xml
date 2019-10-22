@@ -14,7 +14,8 @@
 
   <modules>
     <module>core</module>
-	  <module>adminapp</module>
+    <module>web</module>
+    <module>adminapp</module>
   </modules>
 
   <properties>
