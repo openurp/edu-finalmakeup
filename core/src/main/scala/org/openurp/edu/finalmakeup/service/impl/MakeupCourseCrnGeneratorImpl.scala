@@ -23,26 +23,26 @@ import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.openurp.edu.base.model.Semester
 import org.openurp.edu.exam.model.FinalMakeupCourse
-import org.openurp.edu.finalmakeup.service.MakeupCourseSeqNoGenerator
+import org.openurp.edu.finalmakeup.service.MakeupCourseCrnGenerator
 
 import scala.collection.mutable
 
-object MakeupCourseSeqNoGeneratorImpl {
+object MakeupCourseCrnGeneratorImpl {
   val initSeqNo = "0001"
   val prefix = "BK"
 }
 
-class MakeupCourseSeqNoGeneratorImpl extends MakeupCourseSeqNoGenerator {
+class MakeupCourseCrnGeneratorImpl extends MakeupCourseCrnGenerator {
   var entityDao: EntityDao = _
 
-  def genSeqNo(makeupCourse: FinalMakeupCourse): Unit = {
+  def gen(makeupCourse: FinalMakeupCourse): Unit = {
     if (!Strings.isEmpty(makeupCourse.crn)) return
     this synchronized {
       val seqNos = loadSeqNo(makeupCourse.semester)
       var newSeqNo = 0
       var breaked = false
       for (s <- seqNos if !breaked) {
-        val seqNo = s.substring(MakeupCourseSeqNoGeneratorImpl.prefix.length)
+        val seqNo = s.substring(MakeupCourseCrnGeneratorImpl.prefix.length)
         if (!seqNo.matches(".*[^\\d]+.*")) {
           if (Numbers.toInt(seqNo) - newSeqNo >= 2) {
             breaked = true
@@ -67,7 +67,7 @@ class MakeupCourseSeqNoGeneratorImpl extends MakeupCourseSeqNoGenerator {
     entityDao.search(builder)
   }
 
-  def genSeqNos(makeupCourses: collection.Seq[FinalMakeupCourse]): Unit = {
+  def gen(makeupCourses: collection.Seq[FinalMakeupCourse]): Unit = {
     val courseBySemesterMap = Collections.newMap[Semester, mutable.Buffer[FinalMakeupCourse]]
     for (makeupCourse <- makeupCourses) {
       if (Strings.isEmpty(makeupCourse.crn)) {
@@ -89,7 +89,7 @@ class MakeupCourseSeqNoGeneratorImpl extends MakeupCourseSeqNoGenerator {
       val courseIter = courses.iterator
       var breaked = false
       for (s <- allSeqNos if !breaked) {
-        val seqNo = s.substring(MakeupCourseSeqNoGeneratorImpl.prefix.length)
+        val seqNo = s.substring(MakeupCourseCrnGeneratorImpl.prefix.length)
         seq = Numbers.toInt(seqNo)
         if (seq - newSeqNo >= 2) {
           val gap = seq - newSeqNo - 1

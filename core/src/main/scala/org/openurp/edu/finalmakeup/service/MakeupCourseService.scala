@@ -18,11 +18,17 @@
  */
 package org.openurp.edu.finalmakeup.service
 
+import org.openurp.base.model.Department
+import org.openurp.edu.base.model.{Course, Semester, Squad, Student}
 import org.openurp.edu.exam.model.FinalMakeupCourse
 
-trait MakeupCourseSeqNoGenerator {
+trait MakeupCourseService {
 
-  def genSeqNo(makeupCourse: FinalMakeupCourse): Unit
+  def split(makeupCourse: FinalMakeupCourse):Seq[FinalMakeupCourse]
 
-  def genSeqNos(makeupCourses: collection.Seq[FinalMakeupCourse]): Unit
+  def getOrCreate(semester: Semester, course: Course, department: Department, squad: Option[Squad]): FinalMakeupCourse
+
+  def addTaker(makeupCourse:FinalMakeupCourse,std:Student):String
+
+  def addTaker(semester:Semester,course:Course,std:Student):String
 }
