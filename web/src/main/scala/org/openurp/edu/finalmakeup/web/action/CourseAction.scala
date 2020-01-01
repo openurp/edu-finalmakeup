@@ -378,7 +378,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     grade.project = taker.std.project
     grade.course = taker.makeupCourse.course
     grade.semester = taker.makeupCourse.semester
-    grade.crn = Some(taker.makeupCourse.crn)
+    grade.crn = taker.makeupCourse.crn
     grade.courseTakeType = new CourseTakeType()
     grade.courseTakeType.id = CourseTakeType.Normal
     grade.courseType = taker.courseType

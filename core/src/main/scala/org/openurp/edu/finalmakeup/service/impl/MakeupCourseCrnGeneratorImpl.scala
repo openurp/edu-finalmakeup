@@ -28,7 +28,7 @@ import org.openurp.edu.finalmakeup.service.MakeupCourseCrnGenerator
 import scala.collection.mutable
 
 object MakeupCourseCrnGeneratorImpl {
-  val initSeqNo = "0001"
+  val initCrnNo = "0001"
   val prefix = "BK"
 }
 
@@ -38,28 +38,28 @@ class MakeupCourseCrnGeneratorImpl extends MakeupCourseCrnGenerator {
   def gen(makeupCourse: FinalMakeupCourse): Unit = {
     if (!Strings.isEmpty(makeupCourse.crn)) return
     this synchronized {
-      val seqNos = loadSeqNo(makeupCourse.semester)
-      var newSeqNo = 0
+      val crns = loadCrns(makeupCourse.semester)
+      var newCrn = 0
       var breaked = false
-      for (s <- seqNos if !breaked) {
-        val seqNo = s.substring(MakeupCourseCrnGeneratorImpl.prefix.length)
-        if (!seqNo.matches(".*[^\\d]+.*")) {
-          if (Numbers.toInt(seqNo) - newSeqNo >= 2) {
+      for (s <- crns if !breaked) {
+        val crn = s.substring(MakeupCourseCrnGeneratorImpl.prefix.length)
+        if (!crn.matches(".*[^\\d]+.*")) {
+          if (Numbers.toInt(crn) - newCrn >= 2) {
             breaked = true
           } else {
-            newSeqNo = Numbers.toInt(seqNo)
+            newCrn = Numbers.toInt(crn)
           }
         }
       }
-      newSeqNo += 1
-      putSeqNo(makeupCourse, newSeqNo)
+      newCrn += 1
+      putCrn(makeupCourse, newCrn)
     }
   }
-  private def putSeqNo(makeupCourse: FinalMakeupCourse, seqNo: Int): Unit = {
-    makeupCourse.crn =  "BK" + Strings.repeat("0", 4 - String.valueOf(seqNo).length) + seqNo
+  private def putCrn(makeupCourse: FinalMakeupCourse, crn: Int): Unit = {
+    makeupCourse.crn =  "BK" + Strings.repeat("0", 4 - String.valueOf(crn).length) + crn
   }
 
-  private def loadSeqNo(semester: Semester): Seq[String] = {
+  private def loadCrns(semester: Semester): Seq[String] = {
     val builder = OqlBuilder.from(classOf[FinalMakeupCourse].getName + " makeupCourse")
     builder.where("makeupCourse.semester = :semester", semester)
     builder.orderBy("makeupCourse.crn")
@@ -75,29 +75,29 @@ class MakeupCourseCrnGeneratorImpl extends MakeupCourseCrnGenerator {
       }
     }
     for (semester <- courseBySemesterMap.keySet) {
-      genCourseSeqNos(semester, courseBySemesterMap(semester))
+      genCourseCrns(semester, courseBySemesterMap(semester))
     }
   }
 
-  private def genCourseSeqNos(semester: Semester, courses: collection.Seq[FinalMakeupCourse]): Unit = {
+  private def genCourseCrns(semester: Semester, courses: collection.Seq[FinalMakeupCourse]): Unit = {
     if (courses.isEmpty) return
     this synchronized {
-      val allSeqNos = loadSeqNo(semester)
-      var newSeqNo = 0
+      val allCrns = loadCrns(semester)
+      var newCrn = 0
       var seq = 0
       var allocated = 0
       val courseIter = courses.iterator
       var breaked = false
-      for (s <- allSeqNos if !breaked) {
-        val seqNo = s.substring(MakeupCourseCrnGeneratorImpl.prefix.length)
-        seq = Numbers.toInt(seqNo)
-        if (seq - newSeqNo >= 2) {
-          val gap = seq - newSeqNo - 1
+      for (s <- allCrns if !breaked) {
+        val crn = s.substring(MakeupCourseCrnGeneratorImpl.prefix.length)
+        seq = Numbers.toInt(crn)
+        if (seq - newCrn >= 2) {
+          val gap = seq - newCrn - 1
           var i = 0
           while (i < gap) {
             allocated += 1
-            newSeqNo += 1
-            putSeqNo(courseIter.next, newSeqNo)
+            newCrn += 1
+            putCrn(courseIter.next, newCrn)
             if (allocated >= courses.size) {
               i = gap //break
             } else {
@@ -108,14 +108,14 @@ class MakeupCourseCrnGeneratorImpl extends MakeupCourseCrnGenerator {
           if (allocated >= courses.size) {
             breaked = true
           } else {
-            newSeqNo = seq
+            newCrn = seq
           }
         }
       }
       while (allocated < courses.size) {
-        newSeqNo += 1
+        newCrn += 1
         allocated += 1
-        putSeqNo(courseIter.next, newSeqNo)
+        putCrn(courseIter.next, newCrn)
       }
     }
   }
