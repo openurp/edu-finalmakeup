@@ -2,7 +2,7 @@
 [@b.head/]
   [@b.grid items=makeupTakers var="makeupTaker"]
     [@b.gridbar]
-      bar.addItem("添加", action.method("addSetting"));
+      bar.addItem("添加到..", action.method("addSetting"));
       bar.addItem("删除", action.multi('removeTaker',"确定删除？"));
       bar.addItem("${b.text('action.export')}", "exportData()");
       function exportData(){
@@ -16,14 +16,19 @@
     [@b.row]
       [@b.boxcol/]
       [@b.col title="学号" property="std.user.code" width="13%"/]
-      [@b.col title="姓名" property="std.user.name" width="10%"/]
+      [@b.col title="姓名" property="std.user.name" width="8%"/]
       [@b.col title="课程序号" property="makeupCourse.crn" width="6%"/]
-      [@b.col title="课程代码" width="6%" property="makeupCourse.course.code"/]
+      [@b.col title="课程代码" width="8%" property="makeupCourse.course.code"/]
       [@b.col title="课程名称" width="20%" property="makeupCourse.course.name"/]
-      [@b.col title="院系" width="10%" property="std.state.department.name"/]
-      [@b.col title="班级" property="std.state.squad.name"/]
-      [@b.col title="最高分数" property="scores" width="6%"/]
-      [@b.col title="备注" property="remark" width="6%"/]
+      [@b.col title="院系" property="std.state.department.name"/]
+      [@b.col title="班级" width="17%" property="std.state.squad.name"]
+      <span style="font-size:0.8em">${(makeupTaker.std.state.squad.name)!}</span>
+      [/@]
+      [@b.col title="备注" property="remark" width="18%"]
+      <span style="font-size:0.8em">
+      ${makeupTaker.remark!}
+      </span>
+      [/@]
     [/@]
   [/@]
 [@b.foot/]

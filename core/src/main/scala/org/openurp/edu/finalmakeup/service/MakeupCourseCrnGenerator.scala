@@ -16,18 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.openurp.edu.finalmakeup.web
+package org.openurp.edu.finalmakeup.service
 
-import org.beangle.cdi.bind.BindModule
-import org.openurp.code.service.impl.CodeServiceImpl
-import org.openurp.edu.finalmakeup.service.impl.MakeupCourseSeqNoGeneratorImpl
-import org.openurp.edu.finalmakeup.web.action.{CourseAction, TakerAction}
+import org.openurp.edu.exam.model.FinalMakeupCourse
 
-class DefaultModule extends BindModule {
+trait MakeupCourseCrnGenerator {
 
-  protected override def binding(): Unit = {
-    bind(classOf[CourseAction], classOf[TakerAction])
-    bind(classOf[CodeServiceImpl])
-    bind(classOf[MakeupCourseSeqNoGeneratorImpl])
-  }
+  def gen(makeupCourse: FinalMakeupCourse): Unit
+
+  def gen(makeupCourses: collection.Seq[FinalMakeupCourse]): Unit
 }

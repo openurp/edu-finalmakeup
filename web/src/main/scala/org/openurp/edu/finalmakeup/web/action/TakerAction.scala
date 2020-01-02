@@ -24,11 +24,13 @@ import org.beangle.data.dao.OqlBuilder
 import org.beangle.webmvc.api.annotation.ignore
 import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
-import org.openurp.edu.base.model.{Semester, Student}
+import org.openurp.edu.base.model.{Course, Semester, Student}
 import org.openurp.edu.base.web.ProjectSupport
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
+import org.openurp.edu.finalmakeup.service.MakeupCourseService
 
 class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
+  var makeupCourseService: MakeupCourseService = _
 
   @ignore
   protected override def simpleEntityName: String = {
@@ -79,36 +81,57 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
   }
 
   def addSetting(): View = {
+    val semesterId = getInt("makeupTaker.makeupCourse.semester.id")
+    val query = OqlBuilder.from(classOf[FinalMakeupCourse], "task")
+    query.where("task.semester.id=:semesterId", semesterId.get)
+    query.orderBy("task.course.name,task.crn")
+    put("tasks", entityDao.search(query));
     forward()
   }
 
-  def addTakes(): View = {
-    val semesterId = getInt("semester.id")
-    val query = OqlBuilder.from(classOf[FinalMakeupCourse], "task")
-    getInt("semester.id").foreach(semesterId => {
-      query.where("task.semester.id=:semesterId", semesterId)
-    })
-    get("makeupCourse.crn").foreach(seqNo => {
-      query.where("task.crn=:crn", seqNo)
-    })
-    val tasks = entityDao.search(query)
+  def addTakers(): View = {
+    val semester = entityDao.get(classOf[Semester], intId("semester"))
+    val courseCode = get("courseCode")
+    val crn = get("makeupCourse.crn", "")
     var stdCode = get("stdCodes").orNull
     stdCode = Strings.replace(stdCode, " ", ",")
     val stdCodes = Strings.split(stdCode, ",")
     val stds = entityDao.findBy(classOf[Student], "user.code", stdCodes.toList)
+
     if (stds.isEmpty) {
-      redirect("search", "&makeupTaker.makeupCourse.semester.id=" + semesterId.get, "不存在该学号学生")
+      redirect("search", "&makeupTaker.makeupCourse.semester.id=" + semester.id, "不存在该学号学生")
     } else {
-      stds.foreach(std => {
-        val task = tasks.head
-        val courseType = task.course.courseType
-        val take = new FinalMakeupTaker(task, std, courseType)
-        take.scores="--"
-        task.takers += take
-        task.stdCount = task.stdCount + 1
-      })
-      entityDao.saveOrUpdate(tasks)
-      redirect("search", "&makeupTaker.makeupCourse.semester.id=" + semesterId.get, "info.save.success")
+      var result = "info.save.success"
+      if (Strings.isNotBlank(crn)) {
+        val query = OqlBuilder.from(classOf[FinalMakeupCourse], "mc").where("mc.crn=:crn", crn)
+        query.where("mc.semester=:semester", semester)
+        val makeupCourse = entityDao.search(query).head
+        val rs = Collections.newBuffer[String]
+        stds foreach { std =>
+          val msg = makeupCourseService.addTaker(makeupCourse, std)
+          if (Strings.isNotBlank(msg)) {
+            rs += msg
+          }
+        }
+        result = rs.mkString(",")
+      } else {
+        val query = OqlBuilder.from(classOf[Course], "c").where("c.code=:code", courseCode.get)
+        val courses = entityDao.search(query)
+        if (courses.isEmpty) {
+          return redirect("search", "课程代码" + courseCode.get + "不存在")
+        }
+        val course = courses.head
+        val rs = Collections.newBuffer[String]
+        stds foreach { std =>
+          val msg = makeupCourseService.addTaker(semester, course, std)
+          if (Strings.isNotBlank(msg)) {
+            rs += msg
+          }
+        }
+        result = rs.mkString(",")
+      }
+      if (Strings.isBlank(result)) result = "info.save.success"
+      redirect("search", result)
     }
   }
 }

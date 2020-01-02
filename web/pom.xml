@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <parent>
+    <groupId>org.openurp.edu.finalmakeup</groupId>
+    <artifactId>openurp-edu-finalmakeup-parent</artifactId>
+    <version>0.0.2</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>openurp-edu-finalmakeup-web</artifactId>
+  <packaging>jar</packaging>
+  <name>Openurp Edu Finalmakeup Web</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openurp.edu.finalmakeup</groupId>
+      <artifactId>openurp-edu-finalmakeup-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openurp.edu.base</groupId>
+      <artifactId>openurp-edu-base-web</artifactId>
+      <version>${openurp.edu.web.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openurp.edu.base</groupId>
+      <artifactId>openurp-edu-base-tag</artifactId>
+      <version>${openurp.edu.web.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openurp.edu</groupId>
+      <artifactId>openurp-edu-boot</artifactId>
+      <version>${openurp.edu.web.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openurp.app</groupId>
+      <artifactId>openurp-app-api</artifactId>
+      <version>${openurp.app.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+  </dependencies>
+</project>
+

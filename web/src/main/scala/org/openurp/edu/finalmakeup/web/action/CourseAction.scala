@@ -33,7 +33,7 @@ import org.openurp.code.service.CodeService
 import org.openurp.edu.base.model._
 import org.openurp.edu.base.web.ProjectSupport
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
-import org.openurp.edu.finalmakeup.service.MakeupCourseSeqNoGenerator
+import org.openurp.edu.finalmakeup.service.MakeupCourseService
 import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
 import org.openurp.edu.grade.course.model.{CourseGrade, CourseGradeState, ExamGrade}
 import org.openurp.edu.grade.course.service.CourseGradeCalculator
@@ -42,7 +42,7 @@ import org.openurp.edu.graduation.audit.model.{GraduateResult, GraduateSession}
 import org.openurp.edu.graduation.plan.model.CourseAuditResult
 
 class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport {
-  var generator: MakeupCourseSeqNoGenerator = _
+  var makeupCourseService: MakeupCourseService = _
   var calcualtor: CourseGradeCalculator = _
   var codeService: CodeService = _
 
@@ -112,6 +112,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
     val semester = getSemester(getProject, session.graduateOn)
     put("semester", semester)
+
     val builder: OqlBuilder[Any] = OqlBuilder.from(classOf[CourseAuditResult].getName, "courseResult")
     builderMakeupQuery(builder, session, semester)
     builder.where("std2.state.department in (:department)", getDeparts)
@@ -164,7 +165,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
       if (null == squad) builder.where("std2.state.squad is null", squad)
       else builder.where("std2.state.squad = :squad", squad)
       val results = entityDao.search(builder)
-      val makeupCourse = getMakeupCourse(semester, department, squad, course)
+      val makeupCourse = makeupCourseService.getOrCreate(semester, course, department, Option(squad))
       val proccessed = Collections.newSet[Student]
       for (result <- results) {
         val std = result.groupResult.planResult.std
@@ -189,27 +190,6 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     redirect("newCourseList", "info.save.success")
   }
 
-  private def getMakeupCourse(semester: Semester, department: Department, squad: Squad, course: Course): FinalMakeupCourse = {
-    val builder = OqlBuilder.from(classOf[FinalMakeupCourse], "makeupCourse")
-    builder.where("makeupCourse.semester = :semester", semester)
-    builder.where("makeupCourse.course = :course", course)
-    if (null == squad) builder.where("size(makeupCourse.squads)=0")
-    else builder.where(":squad in elements(makeupCourse.squads)", squad)
-    val makeupCourses = entityDao.search(builder)
-    if (Collections.isEmpty(makeupCourses)) {
-      val makeupCourse = new FinalMakeupCourse
-      makeupCourse.semester = semester
-      makeupCourse.course = course
-      makeupCourse.depart = department
-      makeupCourse.project = getProject
-      if (null != squad) makeupCourse.squads += squad
-      generator.genSeqNo(makeupCourse)
-      entityDao.saveOrUpdate(makeupCourse)
-      makeupCourse
-    } else {
-      makeupCourses.head
-    }
-  }
 
   def merge(): View = {
     val removeds = entityDao.find(classOf[FinalMakeupCourse], longIds("makeupCourse")).toBuffer
@@ -226,24 +206,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   def split(): View = {
     val makeupCourseId = longId("makeupCourse")
     val makeupCourse = entityDao.get(classOf[FinalMakeupCourse], makeupCourseId)
-    if (Collections.isNotEmpty(makeupCourse.squads)) {
-      for (squad <- makeupCourse.squads) {
-        val newMc = new FinalMakeupCourse()
-        newMc.squads += squad
-        newMc.course = makeupCourse.course
-        newMc.depart = makeupCourse.depart
-        newMc.semester = makeupCourse.semester
-        for (taker <- makeupCourse.takers) {
-          if (squad.id.equals(taker.std.state.map(_.squad.map(_.id)).getOrElse(0))) {
-            newMc.takers += new FinalMakeupTaker(newMc, taker.std, taker.courseType)
-          }
-        }
-        newMc.stdCount = newMc.takers.size
-        generator.genSeqNo(newMc)
-        entityDao.saveOrUpdate(newMc)
-      }
-    }
-    entityDao.remove(makeupCourse)
+    makeupCourseService.split(makeupCourse)
     redirect("search", "info.save.success")
   }
 
@@ -415,7 +378,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     grade.project = taker.std.project
     grade.course = taker.makeupCourse.course
     grade.semester = taker.makeupCourse.semester
-    grade.crn = Some(taker.makeupCourse.crn)
+    grade.crn = taker.makeupCourse.crn
     grade.courseTakeType = new CourseTakeType()
     grade.courseTakeType.id = CourseTakeType.Normal
     grade.courseType = taker.courseType
