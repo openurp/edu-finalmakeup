@@ -22,7 +22,7 @@
     <openurp.edu.web.version>0.0.30</openurp.edu.web.version>
     <openurp.app.version>0.1.26</openurp.app.version>
     <openurp.api.version>0.12.0</openurp.api.version>
-    <openurp.edu.grade.version>0.0.3-SNAPSHOT</openurp.edu.grade.version>
+    <openurp.edu.grade.version>0.0.3</openurp.edu.grade.version>
   </properties>
 
 </project>
