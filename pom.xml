@@ -19,7 +19,7 @@
   </modules>
 
   <properties>
-    <openurp.edu.web.version>0.0.31</openurp.edu.web.version>
+    <openurp.edu.web.version>0.0.32</openurp.edu.web.version>
     <openurp.app.version>0.1.28</openurp.app.version>
     <openurp.api.version>0.12.1</openurp.api.version>
     <openurp.edu.grade.version>0.0.4</openurp.edu.grade.version>
