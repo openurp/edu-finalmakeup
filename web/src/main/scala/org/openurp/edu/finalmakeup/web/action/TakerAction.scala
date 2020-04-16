@@ -46,6 +46,7 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
       }
     }
     put("currentSemester", semester)
+    put("project",getProject)
     super.indexSetting()
   }
 
