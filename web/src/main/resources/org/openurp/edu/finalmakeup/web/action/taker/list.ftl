@@ -20,7 +20,9 @@
       [@b.col title="课程序号" property="makeupCourse.crn" width="6%"/]
       [@b.col title="课程代码" width="8%" property="makeupCourse.course.code"/]
       [@b.col title="课程名称" width="20%" property="makeupCourse.course.name"/]
-      [@b.col title="院系" property="std.state.department.name"/]
+      [@b.col title="院系" property="std.state.department.name"]
+        ${(makeupTaker.std.state.department.shortName)!makeupTaker.std.state.department.name}
+      [/@]
       [@b.col title="班级" width="17%" property="std.state.squad.name"]
       <span style="font-size:0.8em">${(makeupTaker.std.state.squad.name)!}</span>
       [/@]

@@ -8,7 +8,7 @@
   </parent>
   <groupId>org.openurp.edu.finalmakeup</groupId>
   <artifactId>openurp-edu-finalmakeup-parent</artifactId>
-  <version>0.0.7</version>
+  <version>0.0.8</version>
   <packaging>pom</packaging>
   <name>OpenURP Edu Finalmakeup Parent</name>
 
@@ -21,7 +21,7 @@
   <properties>
     <openurp.app.version>0.1.33</openurp.app.version>
     <openurp.api.version>0.13.1</openurp.api.version>
-    <openurp.edu.web.version>0.0.36</openurp.edu.web.version>
+    <openurp.edu.web.version>0.0.37</openurp.edu.web.version>
     <openurp.edu.grade.version>0.0.8</openurp.edu.grade.version>
   </properties>
 
