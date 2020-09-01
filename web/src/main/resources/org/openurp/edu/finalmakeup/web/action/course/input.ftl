@@ -13,7 +13,7 @@
         value="[#if grade?string != "null"]${(grade.getScoreText(gradeType))?if_exists}[/#if]" style="width:80px" maxlength="10"/>
          [#if grade?string != "null" && (grade.getGrade(gradeType))??] [#local examGrade=grade.getGrade(gradeType)/][/#if]
     [@b.select items=examStatuses value=((examGrade.examStatus)!NormalExamStatus) name="examStatus_" + (gradeType.id)! + "_" + courseTaker.std.id id="examStatus_" + (gradeType.id)! + "_" + (index + 1) style="width:60px;"
-      onchange="changeExamStatus('${(gradeType.id)!}_${index + 1}',this);checkScore(${index + 1}, this)"/]
+      onchange="changeExamStatus('${(gradeType.id)!}_${index + 1}',this);checkScore(${index + 1}, this)" theme="html"/]
       <script language="javascript">gradeTable.add(${index}, "${courseTaker.std.id}", 1);</script>
     </td>
 [/#macro]
@@ -76,7 +76,8 @@
             <td>所录成绩:[#list gradeTypes as gradeType]${gradeType.name}[/#list]</td>
         </tr>
     </table>
-    <table  class="gridtable" align="center" style="width:90%" onkeypress="gradeTable.onReturn.focus(event)">
+    <div class="grid">
+    <table  class="gridtable" align="center" style="width:90%;border:1px solid;" onkeypress="gradeTable.onReturn.focus(event)">
         <tr align="center" class="gridhead">
         [#list 1..2 as i]
             <td align="center" width="80px">序号</td>
@@ -111,6 +112,7 @@
             <td align="center" id="submitTd"><button onclick="saveGrade(true)" id="bnJustSave">暂存</button> &nbsp;&nbsp;&nbsp; <button onclick="saveGrade(false)" id="bnSubmit">提交</button></td>
         </tr>
     </table>
+    </div>
 <script>
     gradeTable.changeTabIndex(document.gradeForm,true);
     var isOperation = false;
