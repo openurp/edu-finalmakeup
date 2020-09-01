@@ -34,9 +34,7 @@
       [/@]
       [@b.col title="阅卷教师" property="teacher.name" width="10%"/]
       [@b.col title="人数" property="stdCount" width="4%"/]
-      [@b.col title="提交" property="confirmed" width="6%"]${makeupCourse.confirmed?string("是", "否")}[/@]
-      [@b.col title="发布" property="published" width="6%"]${makeupCourse.published?string("是", "否")}[/@]
-
+      [@b.col title="提交" property="status" width="12%"][#if makeupCourse.status=1]已提交[#elseif makeupCourse.status==2]已发布[#else]未提交[/#if][/@]
     [/@]
   [/@]
   [@b.form name="makeupCourseForm" action="!index"/]

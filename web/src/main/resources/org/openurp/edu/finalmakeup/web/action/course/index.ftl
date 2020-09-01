@@ -36,15 +36,13 @@
   [/@]
 </div>
 
-  <table class="indexpanel">
-    <tr>
-      <td class="index_view" style="width:180px">
+  <div class="search-container">
+      <div class="search-panel" >
         [@b.form name="makeupCourseIndexForm" action="!search" title="ui.searchForm" target="makeupCourses" theme="search"]
           [#include "searchForm.ftl"/]
           <input type="hidden" name="makeupCourse.semester.id" value="${semester.id}">
         [/@]
-      </td>
-      <td class="index_content">[@b.div id="makeupCourses" href="!search?makeupCourse.semester.id="+semester.id/]</td>
-    </tr>
-  </table>
+      </div>
+      <div class="search-list">[@b.div id="makeupCourses" href="!search?makeupCourse.semester.id="+semester.id/]</div>
+  </div>
 [@b.foot/]

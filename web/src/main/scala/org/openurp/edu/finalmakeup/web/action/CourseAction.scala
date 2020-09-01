@@ -31,7 +31,7 @@ import org.openurp.base.model.Department
 import org.openurp.code.edu.model.{CourseTakeType, ExamStatus, GradeType, GradingMode}
 import org.openurp.code.service.CodeService
 import org.openurp.edu.base.model._
-import org.openurp.edu.base.web.ProjectSupport
+import org.openurp.edu.web.ProjectSupport
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
 import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
@@ -39,7 +39,7 @@ import org.openurp.edu.grade.course.model.{CourseGrade, CourseGradeState, ExamGr
 import org.openurp.edu.grade.course.service.CourseGradeCalculator
 import org.openurp.edu.grade.model.Grade
 import org.openurp.edu.graduation.audit.model.{GraduateResult, GraduateSession}
-import org.openurp.edu.graduation.plan.model.CourseAuditResult
+import org.openurp.edu.grade.plan.model.CourseAuditResult
 
 class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport {
   var makeupCourseService: MakeupCourseService = _
@@ -279,7 +279,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     val a = longIds("makeupCourse")
     val builder = OqlBuilder.from(classOf[FinalMakeupCourse], "makeupCourse")
     builder.where("makeupCourse.id in (:makeupCourseIds)", a)
-    builder.where("makeupCourse.confirmed = true")
+    builder.where("makeupCourse.status > 0")
     val makeupCourses = entityDao.search(builder)
     put("makeupCourses", makeupCourses)
     val gradeMap = Collections.newMap[FinalMakeupCourse, Seq[CourseGrade]]
@@ -302,7 +302,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   def input(): View = {
     val makeupCourse = entityDao.get(classOf[FinalMakeupCourse], longId("makeupCourse"))
     put("makeupCourse", makeupCourse)
-    if (makeupCourse.confirmed) {
+    if (makeupCourse.status>0) {
       return redirect("printGrade", "&makeupCourseIds=" + makeupCourse.id, "info.save.success")
     }
     put("gradeMap", getCourseGradeMap(makeupCourse))
@@ -310,7 +310,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     val examStatuses = codeService.get(classOf[ExamStatus]).toBuffer
     val removed = Collections.newBuffer[ExamStatus]
     for (es <- examStatuses) {
-      if (es.deferred) removed += es
+      if (es.hasDeferred) removed += es
     }
     examStatuses --= removed
     put("examStatuses", examStatuses)
@@ -352,6 +352,8 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
           examGrade.gradeType = MAKEUP
           examGrade.examStatus = new ExamStatus(examStatusId)
           examGrade.score = score
+          examGrade.createdAt=Instant.now
+          examGrade.updatedAt=Instant.now
           examGrade.gradingMode = grade.gradingMode
           grade.addExamGrade(examGrade)
         }
@@ -362,8 +364,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
       }
     }
     if (Grade.Status.Confirmed == status) {
-      makeupCourse.confirmed = true
-      makeupCourse.published = false
+      makeupCourse.status = Grade.Status.Confirmed
       entityDao.saveOrUpdate(grades, makeupCourse)
       redirect("printGrade", "&makeupCourseIds=" + makeupCourse.id, "info.save.success")
     } else {
@@ -386,6 +387,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     grade.status = 0
     grade.examMode = taker.makeupCourse.course.examMode
     grade.updatedAt = Instant.now
+    grade.createdAt = Instant.now
     grade.operator = Some(Securities.user)
     grade
   }
@@ -411,8 +413,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
             grades += grade
           }
         }
-        if (!published) makeupCourse.confirmed = false
-        makeupCourse.published = published
+        makeupCourse.status =status
       }
       entityDao.saveOrUpdate(grades, makeupCourses)
     }

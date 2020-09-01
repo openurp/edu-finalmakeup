@@ -4,8 +4,4 @@
     <module class="org.openurp.edu.finalmakeup.web.DefaultModule"/>
     <module class="org.openurp.edu.boot.web.ProjectModule" />
   </container>
-
-  <container>
-    <module class="org.openurp.edu.grade.GradeServiceModule"/>
-  </container>
 </cdi>
