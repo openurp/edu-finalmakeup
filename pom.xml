@@ -20,7 +20,7 @@
 
   <properties>
     <openurp.api.version>0.18.0</openurp.api.version>
-    <openurp.edu.web.version>0.1.6</openurp.edu.web.version>
+    <openurp.edu.web.version>0.1.7-SNAPSHOT</openurp.edu.web.version>
     <openurp.edu.grade.version>0.0.10</openurp.edu.grade.version>
   </properties>
 
