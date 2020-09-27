@@ -97,7 +97,7 @@ class MakeupCourseCrnGeneratorImpl extends MakeupCourseCrnGenerator {
           while (i < gap) {
             allocated += 1
             newCrn += 1
-            putCrn(courseIter.next, newCrn)
+            putCrn(courseIter.next(), newCrn)
             if (allocated >= courses.size) {
               i = gap //break
             } else {
@@ -115,7 +115,7 @@ class MakeupCourseCrnGeneratorImpl extends MakeupCourseCrnGenerator {
       while (allocated < courses.size) {
         newCrn += 1
         allocated += 1
-        putCrn(courseIter.next, newCrn)
+        putCrn(courseIter.next(), newCrn)
       }
     }
   }
