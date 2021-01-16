@@ -19,7 +19,7 @@
 package org.openurp.edu.finalmakeup.web.helper
 import org.beangle.commons.bean.orderings.MultiPropertyOrdering
 import org.beangle.commons.collection.Collections
-import org.openurp.edu.base.model.{Course, Squad}
+import org.openurp.base.edu.model.{Course, Squad}
 
 class MakeupMatrix {
   val datas = Collections.newMap[Squad, collection.mutable.Map[Course, Int]]

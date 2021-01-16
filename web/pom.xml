@@ -17,14 +17,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.openurp.edu</groupId>
-      <artifactId>openurp-edu-web</artifactId>
-      <version>${openurp.edu.web.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.openurp.edu</groupId>
-      <artifactId>openurp-edu-boot</artifactId>
-      <version>${openurp.edu.web.version}</version>
+      <groupId>org.openurp.boot</groupId>
+      <artifactId>openurp-boot-web</artifactId>
+      <version>${openurp.boot.version}</version>
     </dependency>
     <dependency>
       <groupId>jakarta.servlet</groupId>

@@ -24,8 +24,8 @@ import org.beangle.data.dao.OqlBuilder
 import org.beangle.webmvc.api.annotation.ignore
 import org.beangle.webmvc.api.view.View
 import org.beangle.webmvc.entity.action.RestfulAction
-import org.openurp.edu.base.model.{Course, Semester, Student}
-import org.openurp.edu.web.ProjectSupport
+import org.openurp.base.edu.model.{Course, Semester, Student}
+import org.openurp.boot.edu.helper.ProjectSupport
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
 
@@ -68,7 +68,7 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
     forward()
   }
 
-  def removeTaker: View = {
+  def removeTaker(): View = {
     val tasks = Collections.newSet[FinalMakeupCourse]
     longIds("makeupTaker") foreach { takerId =>
       val taker = entityDao.get(classOf[FinalMakeupTaker], takerId)
@@ -86,7 +86,7 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
     val query = OqlBuilder.from(classOf[FinalMakeupCourse], "task")
     query.where("task.semester.id=:semesterId", semesterId.get)
     query.orderBy("task.course.name,task.crn")
-    put("tasks", entityDao.search(query));
+    put("tasks", entityDao.search(query))
     forward()
   }
 
