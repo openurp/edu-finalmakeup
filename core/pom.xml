@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.openurp.edu.finalmakeup</groupId>
     <artifactId>openurp-edu-finalmakeup-parent</artifactId>
-    <version>0.0.10</version>
+    <version>0.0.11</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>openurp-edu-finalmakeup-core</artifactId>
@@ -16,13 +16,13 @@
       <artifactId>beangle-ems-app_2.13</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.openurp.edu.exam</groupId>
-      <artifactId>openurp-edu-exam-api</artifactId>
+      <groupId>org.openurp.edu</groupId>
+      <artifactId>openurp-edu-api</artifactId>
       <version>${openurp.api.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.openurp.edu.graduation</groupId>
-      <artifactId>openurp-edu-graduation-api</artifactId>
+      <groupId>org.openurp.std</groupId>
+      <artifactId>openurp-std-api</artifactId>
       <version>${openurp.api.version}</version>
     </dependency>
     <dependency>
@@ -31,8 +31,8 @@
       <version>${openurp.edu.grade.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.openurp.edu.base</groupId>
-      <artifactId>openurp-edu-base-api</artifactId>
+      <groupId>org.openurp.base</groupId>
+      <artifactId>openurp-base-api</artifactId>
       <version>${openurp.api.version}</version>
     </dependency>
   </dependencies>

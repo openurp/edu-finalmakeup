@@ -21,7 +21,7 @@ package org.openurp.edu.finalmakeup.service.impl
 import org.beangle.commons.collection.Collections
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
 import org.openurp.base.model.Department
-import org.openurp.edu.base.model.{Course, Semester, Squad, Student}
+import org.openurp.base.edu.model.{Course, Semester, Squad, Student}
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.{MakeupCourseCrnGenerator, MakeupCourseService}
 import org.openurp.edu.grade.plan.model.CourseAuditResult
@@ -67,7 +67,7 @@ class MakeupCourseServiceImpl extends MakeupCourseService {
         newMc.depart = makeupCourse.depart
         newMc.semester = makeupCourse.semester
         for (taker <- makeupCourse.takers) {
-          if (squad.id.equals(taker.std.state.map(_.squad.map(_.id)).getOrElse(0))) {
+          if (squad.id == taker.std.state.map(_.squad.map(_.id)).getOrElse(0)) {
             newMc.takers += new FinalMakeupTaker(newMc, taker.std, taker.courseType)
           }
         }

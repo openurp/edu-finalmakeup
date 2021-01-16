@@ -30,15 +30,15 @@ import org.beangle.webmvc.entity.action.RestfulAction
 import org.openurp.base.model.Department
 import org.openurp.code.edu.model.{CourseTakeType, ExamStatus, GradeType, GradingMode}
 import org.openurp.code.service.CodeService
-import org.openurp.edu.base.model._
-import org.openurp.edu.web.ProjectSupport
+import org.openurp.base.edu.model._
+import org.openurp.boot.edu.helper.ProjectSupport
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
 import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
 import org.openurp.edu.grade.course.model.{CourseGrade, CourseGradeState, ExamGrade}
 import org.openurp.edu.grade.course.service.CourseGradeCalculator
 import org.openurp.edu.grade.model.Grade
-import org.openurp.edu.graduation.audit.model.{GraduateResult, GraduateSession}
+import org.openurp.std.graduation.audit.model.{GraduateResult, GraduateSession}
 import org.openurp.edu.grade.plan.model.CourseAuditResult
 
 class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport {

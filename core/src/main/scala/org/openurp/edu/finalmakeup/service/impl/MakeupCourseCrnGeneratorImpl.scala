@@ -21,7 +21,7 @@ package org.openurp.edu.finalmakeup.service.impl
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
-import org.openurp.edu.base.model.Semester
+import org.openurp.base.edu.model.Semester
 import org.openurp.edu.exam.model.FinalMakeupCourse
 import org.openurp.edu.finalmakeup.service.MakeupCourseCrnGenerator
 

@@ -19,7 +19,7 @@
 package org.openurp.edu.finalmakeup.service
 
 import org.openurp.base.model.Department
-import org.openurp.edu.base.model.{Course, Semester, Squad, Student}
+import org.openurp.base.edu.model.{Course, Semester, Squad, Student}
 import org.openurp.edu.exam.model.FinalMakeupCourse
 
 trait MakeupCourseService {
