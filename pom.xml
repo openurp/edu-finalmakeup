@@ -21,7 +21,7 @@
   <properties>
     <openurp.api.version>0.20.4</openurp.api.version>
     <openurp.boot.version>0.0.2</openurp.boot.version>
-    <openurp.base.version>0.1.11</openurp.base.version>
+    <openurp.base.version>0.1.12</openurp.base.version>
     <openurp.edu.grade.version>0.0.11</openurp.edu.grade.version>
   </properties>
 
