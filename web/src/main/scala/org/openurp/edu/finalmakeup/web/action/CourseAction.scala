@@ -46,7 +46,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   var calcualtor: CourseGradeCalculator = _
   var codeService: CodeService = _
 
-  override def index: View = {
+  override def index(): View = {
     put("departmentList", getDeparts)
     val query = OqlBuilder.from(classOf[GraduateSession], "session")
     query.where("session.project = :project", getProject)
@@ -101,7 +101,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     "makeupCourse"
   }
 
-  override def search: View = {
+  override def search(): View = {
     val builder = getQueryBuilder
     this.addDepart(builder, "makeupCourse.depart")
     put("makeupCourses", entityDao.search(builder))
