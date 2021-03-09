@@ -38,7 +38,7 @@ import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
 import org.openurp.edu.grade.course.model.{CourseGrade, CourseGradeState, ExamGrade}
 import org.openurp.edu.grade.course.service.CourseGradeCalculator
 import org.openurp.edu.grade.model.Grade
-import org.openurp.std.graduation.audit.model.{GraduateResult, GraduateSession}
+import org.openurp.std.graduation.model.{GraduateResult, GraduateSession}
 import org.openurp.edu.grade.plan.model.CourseAuditResult
 
 class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport {
