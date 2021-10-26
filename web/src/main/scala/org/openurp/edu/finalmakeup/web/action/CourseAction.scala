@@ -1,21 +1,20 @@
 /*
- * OpenURP, Agile University Resource Planning Solution.
- *
- * Copyright © 2014, The OpenURP Software.
+ * Copyright (C) 2005, The OpenURP Software.
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful.
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.openurp.edu.finalmakeup.web.action
 
 import java.time.{Instant, LocalDate}
@@ -24,14 +23,14 @@ import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.security.Securities
-import org.beangle.webmvc.api.annotation.ignore
-import org.beangle.webmvc.api.view.View
-import org.beangle.webmvc.entity.action.RestfulAction
+import org.beangle.web.action.annotation.ignore
+import org.beangle.web.action.view.View
+import org.beangle.webmvc.support.action.RestfulAction
 import org.openurp.base.model.Department
 import org.openurp.code.edu.model.{CourseTakeType, ExamStatus, GradeType, GradingMode}
 import org.openurp.code.service.CodeService
 import org.openurp.base.edu.model._
-import org.openurp.boot.edu.helper.ProjectSupport
+import org.openurp.starter.edu.helper.ProjectSupport
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
 import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
@@ -50,14 +49,14 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     put("departmentList", getDeparts)
     val query = OqlBuilder.from(classOf[GraduateSession], "session")
     query.where("session.project = :project", getProject)
-    query.orderBy("session.graduateOn desc,session.name desc")
+    query.orderBy("session.beginOn desc,session.name desc")
     val sessions = entityDao.search(query)
     put("sessions", sessions)
     val session = getInt("session.id") match {
       case None => sessions.head
       case Some(sid) => sessions.find(_.id == sid).getOrElse(sessions.head)
     }
-    val semester = getSemester(getProject, session.graduateOn)
+    val semester = getSemester(getProject, session.beginOn)
     put("semester", semester)
     forward()
   }
@@ -110,7 +109,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
 
   def newCourseList: View = {
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
-    val semester = getSemester(getProject, session.graduateOn)
+    val semester = getSemester(getProject, session.beginOn)
     put("semester", semester)
 
     val builder: OqlBuilder[Any] = OqlBuilder.from(classOf[CourseAuditResult].getName, "courseResult")
@@ -134,7 +133,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     builder.where("courseResult.course.hasMakeup=true")
     // 按照有不及格的成绩来，不要采用courseResult.scores is not null
     builder.where("exists(from " + classOf[CourseGrade].getName + " cg where cg.std=std2 and cg.course=courseResult.course)")
-    builder.where("std2.graduateOn=:graduateOn", session.graduateOn)
+    builder.where("std2.graduateOn between :graduateBeginOn and :graduateEndOn", session.beginOn,session.endOn)
     builder.join("courseResult.groupResult.planResult.std", "std2")
     builder.where("exists(from " + classOf[GraduateResult].getName + " gr where gr.session.id=" + session.id + " and gr.std=std2)")
     val hql = new StringBuilder
@@ -150,7 +149,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   def addCourse(): View = {
     val courseDepartClassIds = ids("makeupStat", classOf[String])
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
-    val semester = getSemester(getProject, session.graduateOn)
+    val semester = getSemester(getProject, session.beginOn)
     put("semester", semester)
     for (courseDepartClassId <- courseDepartClassIds) {
       val idArray = Strings.split(courseDepartClassId, "-")
@@ -190,7 +189,6 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     redirect("newCourseList", "info.save.success")
   }
 
-
   def merge(): View = {
     val removeds = entityDao.find(classOf[FinalMakeupCourse], longIds("makeupCourse")).toBuffer
     val target = removeds.head
@@ -212,7 +210,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
 
   def squadStat(): View = {
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
-    val semester = getSemester(getProject, session.graduateOn)
+    val semester = getSemester(getProject, session.beginOn)
     put("semester", semester)
     val departs = getDeparts
     put("departments", departs)
