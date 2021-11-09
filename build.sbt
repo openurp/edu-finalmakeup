@@ -3,7 +3,7 @@ import org.openurp.parent.Dependencies._
 import org.beangle.tools.sbt.Sas
 
 ThisBuild / organization := "org.openurp.edu.finalmakeup"
-ThisBuild / version := "0.0.19"
+ThisBuild / version := "0.0.20"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -24,14 +24,14 @@ ThisBuild / developers := List(
 ThisBuild / description := "OpenURP Starter"
 ThisBuild / homepage := Some(url("http://openurp.github.io/edu-finalmakeup/index.html"))
 
-val apiVer = "0.23.2"
-val starterVer = "0.0.10"
-val baseVer = "0.1.20"
+val apiVer = "0.23.4"
+val starterVer = "0.0.13"
+val baseVer = "0.1.22"
 val openurp_edu_api = "org.openurp.edu" % "openurp-edu-api" % apiVer
 val openurp_std_api = "org.openurp.std" % "openurp-std-api" % apiVer
 val openurp_stater_web = "org.openurp.starter" % "openurp-starter-web" % starterVer
 val openurp_base_tag = "org.openurp.base" % "openurp-base-tag" % baseVer
-val openurp_edu_grade_core = "org.openurp.edu.grade" % "openurp-edu-grade-core" % "0.0.14-SNAPSHOT"
+val openurp_edu_grade_core = "org.openurp.edu.grade" % "openurp-edu-grade-core" % "0.0.15"
 
 lazy val root = (project in file("."))
   .settings()
