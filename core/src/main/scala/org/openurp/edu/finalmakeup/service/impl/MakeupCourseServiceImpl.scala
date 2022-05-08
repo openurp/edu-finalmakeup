@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, The OpenURP Software.
+ * Copyright (C) 2014, The OpenURP Software.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -19,8 +19,9 @@ package org.openurp.edu.finalmakeup.service.impl
 
 import org.beangle.commons.collection.Collections
 import org.beangle.data.dao.{EntityDao, OqlBuilder}
-import org.openurp.base.model.Department
-import org.openurp.base.edu.model.{Course, Semester, Squad, Student}
+import org.openurp.base.edu.model.Course
+import org.openurp.base.model.{Department, Semester}
+import org.openurp.base.std.model.{Squad, Student}
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.{MakeupCourseCrnGenerator, MakeupCourseService}
 import org.openurp.edu.grade.plan.model.CourseAuditResult
@@ -31,30 +32,6 @@ import org.openurp.edu.grade.plan.model.CourseAuditResult
 class MakeupCourseServiceImpl extends MakeupCourseService {
   var entityDao: EntityDao = _
   var crnGenerator: MakeupCourseCrnGenerator = _
-
-  override def getOrCreate(semester: Semester, course: Course, department: Department, squad: Option[Squad]): FinalMakeupCourse = {
-    val builder = OqlBuilder.from(classOf[FinalMakeupCourse], "makeupCourse")
-    builder.where("makeupCourse.semester = :semester", semester)
-    builder.where("makeupCourse.course = :course", course)
-    squad match {
-      case None => builder.where("size(makeupCourse.squads)=0")
-      case Some(s) => builder.where(":squad in elements(makeupCourse.squads)", s)
-    }
-    val makeupCourses = entityDao.search(builder)
-    if (Collections.isEmpty(makeupCourses)) {
-      val makeupCourse = new FinalMakeupCourse
-      makeupCourse.semester = semester
-      makeupCourse.course = course
-      makeupCourse.depart = department
-      makeupCourse.project = course.project
-      squad.foreach(makeupCourse.squads += _)
-      crnGenerator.gen(makeupCourse)
-      entityDao.saveOrUpdate(makeupCourse)
-      makeupCourse
-    } else {
-      makeupCourses.head
-    }
-  }
 
   override def split(makeupCourse: FinalMakeupCourse): Seq[FinalMakeupCourse] = {
     if (Collections.isNotEmpty(makeupCourse.squads)) {
@@ -96,21 +73,6 @@ class MakeupCourseServiceImpl extends MakeupCourseService {
     }
   }
 
-  override def addTaker(semester: Semester, course: Course, std: Student): String = {
-    val result = getCourseResult(std, course)
-    if (result.isEmpty) {
-      "没有不及格成绩，无需补考"
-    } else {
-      val makeupCourse = getOrCreate(semester, course, std.state.get.department, std.state.get.squad)
-      val existed = getTaker(makeupCourse.semester, makeupCourse.course, std)
-      if (existed.isDefined) {
-        "已经在" + existed.head.makeupCourse.crn + "中,无需重复添加"
-      } else {
-        doAddTaker(makeupCourse, std, result)
-      }
-    }
-  }
-
   private def getCourseResult(std: Student, course: Course): Option[CourseAuditResult] = {
     val builder = OqlBuilder.from(classOf[CourseAuditResult], "courseResult")
     builder.where("courseResult.course=:course", course)
@@ -137,6 +99,45 @@ class MakeupCourseServiceImpl extends MakeupCourseService {
       entityDao.saveOrUpdate(makeupCourse, take)
     }
     ""
+  }
+
+  override def addTaker(semester: Semester, course: Course, std: Student): String = {
+    val result = getCourseResult(std, course)
+    if (result.isEmpty) {
+      "没有不及格成绩，无需补考"
+    } else {
+      val makeupCourse = getOrCreate(semester, course, std.state.get.department, std.state.get.squad)
+      val existed = getTaker(makeupCourse.semester, makeupCourse.course, std)
+      if (existed.isDefined) {
+        "已经在" + existed.head.makeupCourse.crn + "中,无需重复添加"
+      } else {
+        doAddTaker(makeupCourse, std, result)
+      }
+    }
+  }
+
+  override def getOrCreate(semester: Semester, course: Course, department: Department, squad: Option[Squad]): FinalMakeupCourse = {
+    val builder = OqlBuilder.from(classOf[FinalMakeupCourse], "makeupCourse")
+    builder.where("makeupCourse.semester = :semester", semester)
+    builder.where("makeupCourse.course = :course", course)
+    squad match {
+      case None => builder.where("size(makeupCourse.squads)=0")
+      case Some(s) => builder.where(":squad in elements(makeupCourse.squads)", s)
+    }
+    val makeupCourses = entityDao.search(builder)
+    if (Collections.isEmpty(makeupCourses)) {
+      val makeupCourse = new FinalMakeupCourse
+      makeupCourse.semester = semester
+      makeupCourse.course = course
+      makeupCourse.depart = department
+      makeupCourse.project = course.project
+      squad.foreach(makeupCourse.squads += _)
+      crnGenerator.gen(makeupCourse)
+      entityDao.saveOrUpdate(makeupCourse)
+      makeupCourse
+    } else {
+      makeupCourses.head
+    }
   }
 
 }

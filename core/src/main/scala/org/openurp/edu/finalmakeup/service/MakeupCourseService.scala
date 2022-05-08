@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, The OpenURP Software.
+ * Copyright (C) 2014, The OpenURP Software.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,17 +17,18 @@
 
 package org.openurp.edu.finalmakeup.service
 
-import org.openurp.base.model.Department
-import org.openurp.base.edu.model.{Course, Semester, Squad, Student}
+import org.openurp.base.edu.model.Course
+import org.openurp.base.model.{Department, Semester}
+import org.openurp.base.std.model.{Squad, Student}
 import org.openurp.edu.exam.model.FinalMakeupCourse
 
 trait MakeupCourseService {
 
-  def split(makeupCourse: FinalMakeupCourse):Seq[FinalMakeupCourse]
+  def split(makeupCourse: FinalMakeupCourse): Seq[FinalMakeupCourse]
 
   def getOrCreate(semester: Semester, course: Course, department: Department, squad: Option[Squad]): FinalMakeupCourse
 
-  def addTaker(makeupCourse:FinalMakeupCourse,std:Student):String
+  def addTaker(makeupCourse: FinalMakeupCourse, std: Student): String
 
-  def addTaker(semester:Semester,course:Course,std:Student):String
+  def addTaker(semester: Semester, course: Course, std: Student): String
 }

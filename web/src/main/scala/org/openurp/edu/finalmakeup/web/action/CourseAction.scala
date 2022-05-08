@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, The OpenURP Software.
+ * Copyright (C) 2014, The OpenURP Software.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,8 +17,6 @@
 
 package org.openurp.edu.finalmakeup.web.action
 
-import java.time.{Instant, LocalDate}
-
 import org.beangle.commons.collection.Collections
 import org.beangle.commons.lang.{Numbers, Strings}
 import org.beangle.data.dao.OqlBuilder
@@ -26,19 +24,22 @@ import org.beangle.security.Securities
 import org.beangle.web.action.annotation.ignore
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
-import org.openurp.base.model.Department
+import org.openurp.base.edu.model.*
+import org.openurp.base.model.{Department, Project, Semester}
+import org.openurp.base.std.model.{Squad, Student}
 import org.openurp.code.edu.model.{CourseTakeType, ExamStatus, GradeType, GradingMode}
 import org.openurp.code.service.CodeService
-import org.openurp.base.edu.model._
-import org.openurp.starter.edu.helper.ProjectSupport
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
 import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
 import org.openurp.edu.grade.course.model.{CourseGrade, CourseGradeState, ExamGrade}
 import org.openurp.edu.grade.course.service.CourseGradeCalculator
 import org.openurp.edu.grade.model.Grade
-import org.openurp.std.graduation.model.{GraduateResult, GraduateSession}
 import org.openurp.edu.grade.plan.model.CourseAuditResult
+import org.openurp.starter.edu.helper.ProjectSupport
+import org.openurp.std.graduation.model.{GraduateResult, GraduateSession}
+
+import java.time.{Instant, LocalDate}
 
 class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport {
   var makeupCourseService: MakeupCourseService = _
@@ -49,40 +50,23 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     put("departmentList", getDeparts)
     val query = OqlBuilder.from(classOf[GraduateSession], "session")
     query.where("session.project = :project", getProject)
-    query.orderBy("session.beginOn desc,session.name desc")
+    query.orderBy("session.graduateOn desc,session.name desc")
     val sessions = entityDao.search(query)
     put("sessions", sessions)
     val session = getInt("session.id") match {
       case None => sessions.head
       case Some(sid) => sessions.find(_.id == sid).getOrElse(sessions.head)
     }
-    val semester = getSemester(getProject, session.beginOn)
+    val semester = getSemester(getProject, session.graduateOn)
     put("semester", semester)
     forward()
   }
 
-  protected def getSemester(project: Project, date: LocalDate): Semester = {
-    val builder = OqlBuilder.from(classOf[Semester], "semester")
-      .where("semester.calendar in(:calendars)", project.calendars)
-    builder.where(":date between semester.beginOn and  semester.endOn", date)
-    builder.cacheable()
-    val rs = entityDao.search(builder)
-    if (rs.isEmpty) {
-      val builder2 = OqlBuilder.from(classOf[Semester], "semester")
-        .where("semester.calendar in(:calendars)", project.calendars)
-      val dataStr = date.toString
-      builder2.orderBy(s"abs(semester.beginOn - to_date('$dataStr','yyyy-MM-dd') + semester.endOn - to_date('$dataStr','yyyy-MM-dd'))")
-      builder2.cacheable()
-      builder2.limit(1, 2)
-      val rs2 = entityDao.search(builder2)
-      if (rs2.nonEmpty) {
-        rs2.head
-      } else {
-        null
-      }
-    } else {
-      rs.head
-    }
+  override def search(): View = {
+    val builder = getQueryBuilder
+    this.addDepart(builder, "makeupCourse.depart")
+    put("makeupCourses", entityDao.search(builder))
+    forward()
   }
 
   protected override def getQueryBuilder: OqlBuilder[FinalMakeupCourse] = {
@@ -95,21 +79,9 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     builder
   }
 
-  @ignore
-  protected override def simpleEntityName: String = {
-    "makeupCourse"
-  }
-
-  override def search(): View = {
-    val builder = getQueryBuilder
-    this.addDepart(builder, "makeupCourse.depart")
-    put("makeupCourses", entityDao.search(builder))
-    forward()
-  }
-
   def newCourseList: View = {
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
-    val semester = getSemester(getProject, session.beginOn)
+    val semester = getSemester(getProject, session.graduateOn)
     put("semester", semester)
 
     val builder: OqlBuilder[Any] = OqlBuilder.from(classOf[CourseAuditResult].getName, "courseResult")
@@ -128,12 +100,36 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     forward()
   }
 
+  protected def getSemester(project: Project, date: LocalDate): Semester = {
+    val builder = OqlBuilder.from(classOf[Semester], "semester")
+      .where("semester.calendar=:calendar", project.calendar)
+    builder.where(":date between semester.beginOn and  semester.endOn", date)
+    builder.cacheable()
+    val rs = entityDao.search(builder)
+    if (rs.isEmpty) {
+      val builder2 = OqlBuilder.from(classOf[Semester], "semester")
+        .where("semester.calendar=:calendar", project.calendar)
+      val dataStr = date.toString
+      builder2.orderBy(s"abs(semester.beginOn - to_date('$dataStr','yyyy-MM-dd') + semester.endOn - to_date('$dataStr','yyyy-MM-dd'))")
+      builder2.cacheable()
+      builder2.limit(1, 2)
+      val rs2 = entityDao.search(builder2)
+      if (rs2.nonEmpty) {
+        rs2.head
+      } else {
+        null
+      }
+    } else {
+      rs.head
+    }
+  }
+
   private def builderMakeupQuery[T](builder: OqlBuilder[T], session: GraduateSession, semester: Semester) = {
     builder.where("courseResult.passed=false")
     builder.where("courseResult.course.hasMakeup=true")
     // 按照有不及格的成绩来，不要采用courseResult.scores is not null
     builder.where("exists(from " + classOf[CourseGrade].getName + " cg where cg.std=std2 and cg.course=courseResult.course)")
-    builder.where("std2.graduateOn between :graduateBeginOn and :graduateEndOn", session.beginOn,session.endOn)
+    builder.where("std2.graduateOn =:graduateOn", session.graduateOn)
     builder.join("courseResult.groupResult.planResult.std", "std2")
     builder.where("exists(from " + classOf[GraduateResult].getName + " gr where gr.session.id=" + session.id + " and gr.std=std2)")
     val hql = new StringBuilder
@@ -149,7 +145,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   def addCourse(): View = {
     val courseDepartClassIds = ids("makeupStat", classOf[String])
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
-    val semester = getSemester(getProject, session.beginOn)
+    val semester = getSemester(getProject, session.graduateOn)
     put("semester", semester)
     for (courseDepartClassId <- courseDepartClassIds) {
       val idArray = Strings.split(courseDepartClassId, "-")
@@ -210,7 +206,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
 
   def squadStat(): View = {
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
-    val semester = getSemester(getProject, session.beginOn)
+    val semester = getSemester(getProject, session.graduateOn)
     put("semester", semester)
     val departs = getDeparts
     put("departments", departs)
@@ -300,7 +296,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   def input(): View = {
     val makeupCourse = entityDao.get(classOf[FinalMakeupCourse], longId("makeupCourse"))
     put("makeupCourse", makeupCourse)
-    if (makeupCourse.status>0) {
+    if (makeupCourse.status > 0) {
       return redirect("printGrade", "&makeupCourseIds=" + makeupCourse.id, "info.save.success")
     }
     put("gradeMap", getCourseGradeMap(makeupCourse))
@@ -314,16 +310,6 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     put("examStatuses", examStatuses)
     put("NormalExamStatus", codeService.get(classOf[ExamStatus], ExamStatus.Normal))
     forward()
-  }
-
-  private def getCourseGradeMap(makeupCourse: FinalMakeupCourse): Map[Student, CourseGrade] = {
-    val builder = OqlBuilder.from(classOf[CourseGrade], "courseGrade")
-    builder.where("courseGrade.crn = :crn", makeupCourse.crn)
-    builder.where("courseGrade.course = :course", makeupCourse.course)
-    builder.where("courseGrade.semester = :semester", makeupCourse.semester)
-    builder.where("courseGrade.clazz is null")
-    val grades = entityDao.search(builder)
-    grades.map(x => (x.std, x)).toMap
   }
 
   override def save(): View = {
@@ -350,8 +336,8 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
           examGrade.gradeType = MAKEUP
           examGrade.examStatus = new ExamStatus(examStatusId)
           examGrade.score = score
-          examGrade.createdAt=Instant.now
-          examGrade.updatedAt=Instant.now
+          examGrade.createdAt = Instant.now
+          examGrade.updatedAt = Instant.now
           examGrade.gradingMode = grade.gradingMode
           grade.addExamGrade(examGrade)
         }
@@ -411,10 +397,25 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
             grades += grade
           }
         }
-        makeupCourse.status =status
+        makeupCourse.status = status
       }
       entityDao.saveOrUpdate(grades, makeupCourses)
     }
     redirect("search", "info.save.success")
+  }
+
+  private def getCourseGradeMap(makeupCourse: FinalMakeupCourse): Map[Student, CourseGrade] = {
+    val builder = OqlBuilder.from(classOf[CourseGrade], "courseGrade")
+    builder.where("courseGrade.crn = :crn", makeupCourse.crn)
+    builder.where("courseGrade.course = :course", makeupCourse.course)
+    builder.where("courseGrade.semester = :semester", makeupCourse.semester)
+    builder.where("courseGrade.clazz is null")
+    val grades = entityDao.search(builder)
+    grades.map(x => (x.std, x)).toMap
+  }
+
+  @ignore
+  protected override def simpleEntityName: String = {
+    "makeupCourse"
   }
 }

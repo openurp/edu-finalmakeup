@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, The OpenURP Software.
+ * Copyright (C) 2014, The OpenURP Software.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,9 +16,11 @@
  */
 
 package org.openurp.edu.finalmakeup.web.helper
+
 import org.beangle.commons.bean.orderings.MultiPropertyOrdering
 import org.beangle.commons.collection.Collections
-import org.openurp.base.edu.model.{Course, Squad}
+import org.openurp.base.edu.model.Course
+import org.openurp.base.std.model.Squad
 
 class MakeupMatrix {
   val datas = Collections.newMap[Squad, collection.mutable.Map[Course, Int]]

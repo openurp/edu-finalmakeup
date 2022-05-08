@@ -1,6 +1,5 @@
 var normalExamStatusId="1";// "${NORMAL}"
 
-    
 function GradeTable() {
     this.valueStyle = [
                       {"validator":/^\d+$/, "caption":"请输入0或正整数", "shortCaption":"0或正整数"},
@@ -215,7 +214,6 @@ function changePrecision(precision){
     }
 }
 
-
 function changeScore(input) {
     var gradeInfos = input.name.split("_");
     var examType = gradeInfos[0];
@@ -250,10 +248,10 @@ function changeCourseGrade(input) {
 var intervalId = null;
 
 function justSave(e){
-	if(saveGrade(true)) {document.gradeForm.submit();}
+  if(saveGrade(true)) {document.gradeForm.submit();}
 }
 function submitSave(e){
-	if(saveGrade(false)) {document.gradeForm.submit();}
+  if(saveGrade(false)) {document.gradeForm.submit();}
 }
 function saveGrade(justSave) {
     clearInterval(timer);
@@ -276,7 +274,7 @@ function saveGrade(justSave) {
 
 // 为保存成绩定时提示
 var timeMin=5;// 5分钟
-var time = timeMin * 60; 
+var time = timeMin * 60;
 var timeElapse = 0;
 function refreshTime() {
   if(document.getElementById("timeElapse")==null){

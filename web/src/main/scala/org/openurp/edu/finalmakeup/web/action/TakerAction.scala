@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, The OpenURP Software.
+ * Copyright (C) 2014, The OpenURP Software.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -23,18 +23,15 @@ import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.annotation.ignore
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
-import org.openurp.base.edu.model.{Course, Semester, Student}
-import org.openurp.starter.edu.helper.ProjectSupport
+import org.openurp.base.edu.model.Course
+import org.openurp.base.model.Semester
+import org.openurp.base.std.model.Student
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
+import org.openurp.starter.edu.helper.ProjectSupport
 
 class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
   var makeupCourseService: MakeupCourseService = _
-
-  @ignore
-  protected override def simpleEntityName: String = {
-    "makeupTaker"
-  }
 
   override def indexSetting(): Unit = {
     val semesterId = getInt("semester.id")
@@ -45,7 +42,7 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
       }
     }
     put("currentSemester", semester)
-    put("project",getProject)
+    put("project", getProject)
     super.indexSetting()
   }
 
@@ -133,5 +130,10 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
       if (Strings.isBlank(result)) result = "info.save.success"
       redirect("search", result)
     }
+  }
+
+  @ignore
+  protected override def simpleEntityName: String = {
+    "makeupTaker"
   }
 }
