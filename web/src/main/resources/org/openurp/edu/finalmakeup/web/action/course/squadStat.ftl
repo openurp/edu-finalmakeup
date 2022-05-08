@@ -5,12 +5,11 @@
 [/@]
 
 [@b.form action="!squadStat" theme="list"]
+  <input type="hidden" name="session.id" value="${Parameters['session.id']}"/>
   [@b.select items=departments name="department.id" value=department! label="院系"  style="width:200px" empty="..." onchange="bg.form.submit(this.form)"/]
-  [@b.formfoot]
-    <input type="hidden" name="session.id" value="${Parameters['session.id']}"/>
-  [/@]
 [/@]
-  <table class="gridtable">
+<div class="container">
+  <table class="gridtable" style="border:0.5px solid #006CB2">
    <thead  class="gridhead">
     <tr>
       <td width="40px">序号</td>
@@ -41,4 +40,5 @@
     </tr>
    </tbody>
   </table>
+</container>
 [@b.foot/]
