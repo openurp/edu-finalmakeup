@@ -1,9 +1,8 @@
-import org.beangle.tools.sbt.Sas
 import org.openurp.parent.Dependencies._
 import org.openurp.parent.Settings._
 
 ThisBuild / organization := "org.openurp.edu.finalmakeup"
-ThisBuild / version := "0.0.21"
+ThisBuild / version := "0.0.22"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -24,10 +23,10 @@ ThisBuild / developers := List(
 ThisBuild / description := "OpenURP Starter"
 ThisBuild / homepage := Some(url("http://openurp.github.io/edu-finalmakeup/index.html"))
 
-val apiVer = "0.25.0"
-val starterVer = "0.0.19"
-val baseVer = "0.1.27"
-val gradeVer = "0.0.16"
+val apiVer = "0.25.1"
+val starterVer = "0.0.20"
+val baseVer = "0.1.29"
+val gradeVer = "0.0.17"
 val openurp_edu_api = "org.openurp.edu" % "openurp-edu-api" % apiVer
 val openurp_std_api = "org.openurp.std" % "openurp-std-api" % apiVer
 val openurp_stater_web = "org.openurp.starter" % "openurp-starter-web" % starterVer
@@ -36,7 +35,7 @@ val openurp_edu_grade_core = "org.openurp.edu.grade" % "openurp-edu-grade-core" 
 
 lazy val root = (project in file("."))
   .settings()
-  .aggregate(core, web, adminapp)
+  .aggregate(core, web, webapp)
 
 lazy val core = (project in file("core"))
   .settings(
@@ -52,12 +51,11 @@ lazy val web = (project in file("web"))
     libraryDependencies ++= Seq(openurp_stater_web, openurp_base_tag)
   ).dependsOn(core)
 
-lazy val adminapp = (project in file("adminapp"))
+lazy val webapp = (project in file("webapp"))
   .enablePlugins(WarPlugin,UndertowPlugin)
   .settings(
-    name := "openurp-edu-finalmakeup-adminapp",
-    common,
-    libraryDependencies ++= Seq(Sas.Tomcat % "test")
+    name := "openurp-edu-finalmakeup-webapp",
+    common
   ).dependsOn(web)
 
 publish / skip := true
