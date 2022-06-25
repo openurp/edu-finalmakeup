@@ -24,7 +24,7 @@ import org.openurp.base.model.{Department, Semester}
 import org.openurp.base.std.model.{Squad, Student}
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.{MakeupCourseCrnGenerator, MakeupCourseService}
-import org.openurp.edu.grade.plan.model.CourseAuditResult
+import org.openurp.edu.grade.model.CourseAuditResult
 
 /** 毕业补考服务
  *
