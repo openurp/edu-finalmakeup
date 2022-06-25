@@ -32,10 +32,10 @@ import org.openurp.code.service.CodeService
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
 import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
-import org.openurp.edu.grade.course.model.{CourseGrade, CourseGradeState, ExamGrade}
-import org.openurp.edu.grade.course.service.CourseGradeCalculator
+import org.openurp.edu.grade.model.{CourseGrade, CourseGradeState, ExamGrade}
+import org.openurp.edu.grade.service.CourseGradeCalculator
 import org.openurp.edu.grade.model.Grade
-import org.openurp.edu.grade.plan.model.CourseAuditResult
+import org.openurp.edu.grade.model.CourseAuditResult
 import org.openurp.starter.edu.helper.ProjectSupport
 import org.openurp.std.graduation.model.{GraduateResult, GraduateSession}
 
