@@ -1,6 +1,6 @@
 [#ftl/]
-[@b.textfield name="makeupTaker.std.user.code" label="学号"/]
-[@b.textfield name="makeupTaker.std.user.name" label="姓名"/]
+[@b.textfield name="makeupTaker.std.code" label="学号"/]
+[@b.textfield name="makeupTaker.std.name" label="姓名"/]
 [@b.textfield name="makeupTaker.std.state.grade" label="年级"/]
 [@b.select name="makeupTaker.std.state.department.id" label="部门" items=departmentList empty="..."/]
 [@b.textfield name="makeupTaker.std.state.squad.name" label="班级"/]

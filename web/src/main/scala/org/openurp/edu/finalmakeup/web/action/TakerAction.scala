@@ -24,20 +24,22 @@ import org.beangle.web.action.annotation.ignore
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 import org.openurp.base.edu.model.Course
-import org.openurp.base.model.Semester
+import org.openurp.base.model.{Project, Semester}
 import org.openurp.base.std.model.Student
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
-import org.openurp.starter.edu.helper.ProjectSupport
+import org.openurp.starter.web.support.ProjectSupport
 
 class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
   var makeupCourseService: MakeupCourseService = _
 
   override def indexSetting(): Unit = {
+    given project: Project = getProject
+
     val semesterId = getInt("semester.id")
     val semester = {
       semesterId match {
-        case None => getCurrentSemester
+        case None => getSemester
         case _ => entityDao.get(classOf[Semester], semesterId.get)
       }
     }
@@ -46,7 +48,7 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
     super.indexSetting()
   }
 
-  def stat: View = {
+  def stat(): View = {
     val semesterId = getLong("semester.id")
     val query: OqlBuilder[Array[Any]] = OqlBuilder.from(classOf[FinalMakeupTaker].getName, "t")
     query.where("take.makeupCourse.semester.id=:semesterId", semesterId)

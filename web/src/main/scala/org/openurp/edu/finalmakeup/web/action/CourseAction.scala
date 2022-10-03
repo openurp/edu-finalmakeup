@@ -32,21 +32,20 @@ import org.openurp.code.service.CodeService
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
 import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
-import org.openurp.edu.grade.model.{CourseGrade, CourseGradeState, ExamGrade}
+import org.openurp.edu.grade.model.*
 import org.openurp.edu.grade.service.CourseGradeCalculator
-import org.openurp.edu.grade.model.Grade
-import org.openurp.edu.grade.model.CourseAuditResult
-import org.openurp.starter.edu.helper.ProjectSupport
+import org.openurp.starter.web.support.ProjectSupport
 import org.openurp.std.graduation.model.{GraduateResult, GraduateSession}
 
 import java.time.{Instant, LocalDate}
 
 class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport {
   var makeupCourseService: MakeupCourseService = _
-  var calcualtor: CourseGradeCalculator = _
-  var codeService: CodeService = _
+  var calculator: CourseGradeCalculator = _
 
   override def index(): View = {
+    given project: Project = getProject
+
     put("departmentList", getDeparts)
     val query = OqlBuilder.from(classOf[GraduateSession], "session")
     query.where("session.project = :project", getProject)
@@ -79,9 +78,11 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     builder
   }
 
-  def newCourseList: View = {
+  def newCourseList(): View = {
+    given project: Project = getProject
+
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
-    val semester = getSemester(getProject, session.graduateOn)
+    val semester = getSemester(project, session.graduateOn)
     put("semester", semester)
 
     val builder: OqlBuilder[Any] = OqlBuilder.from(classOf[CourseAuditResult].getName, "courseResult")
@@ -205,6 +206,8 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   def squadStat(): View = {
+    given project: Project = getProject
+
     val session = entityDao.get(classOf[GraduateSession], longId("session"))
     val semester = getSemester(getProject, session.graduateOn)
     put("semester", semester)
@@ -248,7 +251,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     forward()
   }
 
-  def designationTeacher: View = {
+  def designationTeacher(): View = {
     val makeupCourses = entityDao.find(classOf[FinalMakeupCourse], longIds("makeupCourse"))
     for (makeupCourse <- makeupCourses) {
       getLong(makeupCourse.id.toString) foreach { teacherId =>
@@ -342,8 +345,8 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
           grade.addExamGrade(examGrade)
         }
         examGrade.status = status
-        calcualtor.updateScore(examGrade, score, grade.gradingMode)
-        calcualtor.calcAll(grade, state)
+        calculator.updateScore(examGrade, score, grade.gradingMode)
+        calculator.calcAll(grade, state)
         grades += grade
       }
     }
@@ -393,7 +396,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
             grade.getGaGrade(MAKEUP_GA) foreach { gaGrade =>
               gaGrade.status = status
             }
-            calcualtor.calcAll(grade, state)
+            calculator.calcAll(grade, state)
             grades += grade
           }
         }

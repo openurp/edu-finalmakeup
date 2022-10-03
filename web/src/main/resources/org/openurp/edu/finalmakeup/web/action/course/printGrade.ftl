@@ -79,7 +79,7 @@ table.reportFoot tr {
 [/#macro]
 [#assign pagePrintRow = 25 /]
    [#list makeupCourses  as task]
-    [#assign grades=gradeMap.get(task)?sort_by(['std','user','code'])]
+    [#assign grades=gradeMap.get(task)?sort_by(['std','code'])]
    [#assign pageNos=(grades?size/(pagePrintRow*2))?int /]
    [#if ((grades?size)>(pageNos*(pagePrintRow*2)))]
    [#assign pageNos=pageNos+1 /]
@@ -127,15 +127,15 @@ table.reportFoot tr {
      <tr class="brightStyle"  >
      [#if grades[i+passNo]?exists]
        <td>${i+1+passNo}</td>
-       <td>${grades[i+passNo].std.user.code}</td>
-       <td>${grades[i+passNo].std.user.name}</td>
+       <td>${grades[i+passNo].std.code}</td>
+       <td>${grades[i+passNo].std.name}</td>
        <td>
          [@displayScore grades[i+passNo]/]
        </td>
        [#if grades[i+pagePrintRow+passNo]?exists]
        <td>${i+pagePrintRow+1+passNo}</td>
-       <td>${grades[i+pagePrintRow+passNo].std.user.code}</td>
-       <td>${grades[i+pagePrintRow+passNo].std.user.name}</td>
+       <td>${grades[i+pagePrintRow+passNo].std.code}</td>
+       <td>${grades[i+pagePrintRow+passNo].std.name}</td>
        <td>[@displayScore grades[i+pagePrintRow+passNo]/]</td>
        [#else]
           [@emptyTd count=4/]

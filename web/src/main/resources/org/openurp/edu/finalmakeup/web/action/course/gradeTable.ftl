@@ -72,7 +72,7 @@ table.reportFoot tr {
 [/#macro]
 [#assign pagePrintRow = 25 /]
 [#list makeupCourses  as task ]
- [#assign takes=task.takers?sort_by(['std','user','code'])]
+ [#assign takes=task.takers?sort_by(['std','code'])]
 
    [#assign pageNos=(takes?size/(pagePrintRow*2))?int /]
    [#if ((takes?size)>(pageNos*(pagePrintRow*2)))]
@@ -119,14 +119,14 @@ table.reportFoot tr {
      <tr class="brightStyle" >
        [#if takes[i+passNo]?exists]
        <td>${i+1+passNo}</td>
-       <td>${takes[i+passNo].std.user.code}</td>
-       <td>${takes[i+passNo].std.user.name}</td>
+       <td>${takes[i+passNo].std.code}</td>
+       <td>${takes[i+passNo].std.name}</td>
        [@emptyTd count=2/]
 
        [#if takes[i+pagePrintRow+passNo]?exists]
        <td>${i+pagePrintRow+1+passNo}</td>
-       <td>${takes[i+pagePrintRow+passNo].std.user.code}</td>
-       <td>${takes[i+pagePrintRow+passNo].std.user.name}</td>
+       <td>${takes[i+pagePrintRow+passNo].std.code}</td>
+       <td>${takes[i+pagePrintRow+passNo].std.name}</td>
        [@emptyTd count=2/]
        [#elseif takes[i+passNo]?exists]
           [@emptyTd count=5/]

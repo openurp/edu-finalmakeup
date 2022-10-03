@@ -20,8 +20,8 @@
 
 [#macro displayGrades(index, courseTaker)]
     <td align="center">${index + 1}</td>
-    <td>${courseTaker.std.user.code}</td>
-    <td>${courseTaker.std.user.name}</td>
+    <td>${courseTaker.std.code}</td>
+    <td>${courseTaker.std.name}</td>
   [#if gradeMap.get(courseTaker.std)??]
   [#local grade = gradeMap.get(courseTaker.std)]
   [/#if]
@@ -47,7 +47,7 @@
     <div align="center" style="font-size:15px;font-weight:bold">毕业补考成绩登记表<br>
         ${task.semester.schoolYear}学年[#if task.semester.name?contains("学期")]${task.semester.name}[#else]${makeupCourse.semester.name}学期[/#if]</font>
     </div>
-    [#assign makeupTakes=makeupCourse.takers?sort_by(["std","user","code"])]
+    [#assign makeupTakes=makeupCourse.takers?sort_by(["std","code"])]
     [#if makeupTakes?size == 0]
         [#list 1..2 as i]<br>[/#list]
     <table width="90%" align="center" style="background-color:yellow">
@@ -88,7 +88,7 @@
             [/#list]
         [/#list]
         </tr>
-        [#assign makeupTakes = makeupTakes?sort_by(["std","user", "code"])?if_exists/]
+        [#assign makeupTakes = makeupTakes?sort_by(["std", "code"])?if_exists/]
         [#assign pageSize = ((makeupTakes?size + 1) / 2)?int/]
         [#list makeupTakes as courseTake]
         <tr>

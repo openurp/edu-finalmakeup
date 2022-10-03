@@ -2,6 +2,8 @@
 <cdi>
   <container>
     <module class="org.openurp.edu.finalmakeup.web.DefaultModule"/>
-    <module class="org.openurp.starter.edu.action.ProjectModule" />
+    <module class="org.openurp.starter.web.ProjectModule" />
+    <module class="org.openurp.edu.grade.service.impl.BindDefaultModule"/>
+    <module class="org.openurp.edu.grade.service.impl.BindConfigModule"/>
   </container>
 </cdi>
