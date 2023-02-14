@@ -23,10 +23,10 @@ ThisBuild / developers := List(
 ThisBuild / description := "OpenURP Starter"
 ThisBuild / homepage := Some(url("http://openurp.github.io/edu-finalmakeup/index.html"))
 
-val apiVer = "0.30.0"
-val starterVer = "0.2.0"
-val baseVer = "0.2.0"
-val coreVer = "0.0.1"
+val apiVer = "0.31.0.Beta2"
+val starterVer = "0.2.10"
+val baseVer = "0.3.3"
+val coreVer = "0.0.5"
 val openurp_edu_api = "org.openurp.edu" % "openurp-edu-api" % apiVer
 val openurp_std_api = "org.openurp.std" % "openurp-std-api" % apiVer
 val openurp_stater_web = "org.openurp.starter" % "openurp-starter-web" % starterVer
@@ -35,24 +35,17 @@ val openurp_edu_core = "org.openurp.edu" % "openurp-edu-core" % coreVer
 
 lazy val root = (project in file("."))
   .settings()
-  .aggregate(core, web, webapp)
-
-lazy val core = (project in file("core"))
-  .settings(
-    name := "openurp-edu-finalmakeup-core",
-    common,
-    libraryDependencies ++= Seq(openurp_edu_api, openurp_std_api, beangle_ems_app, openurp_edu_core)
-  )
+  .aggregate(web, webapp)
 
 lazy val web = (project in file("web"))
   .settings(
     name := "openurp-edu-finalmakeup-web",
     common,
-    libraryDependencies ++= Seq(openurp_stater_web, openurp_base_tag)
-  ).dependsOn(core)
+    libraryDependencies ++= Seq(openurp_stater_web, openurp_base_tag,openurp_edu_core)
+  )
 
 lazy val webapp = (project in file("webapp"))
-  .enablePlugins(WarPlugin,UndertowPlugin)
+  .enablePlugins(WarPlugin,TomcatPlugin,UndertowPlugin)
   .settings(
     name := "openurp-edu-finalmakeup-webapp",
     common

@@ -26,7 +26,5 @@ class DefaultModule extends BindModule {
 
   protected override def binding(): Unit = {
     bind(classOf[CourseAction], classOf[TakerAction])
-    bind(classOf[CodeServiceImpl])
-    bind(classOf[MakeupCourseCrnGeneratorImpl], classOf[MakeupCourseServiceImpl])
   }
 }

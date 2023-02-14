@@ -3,25 +3,25 @@
   [@b.toolbar title="毕业补考成绩管理"]
   [/@]
 
-<div style="background: url('${base}/static/images/semesterBarBg.png') repeat-x scroll 50% 50% #DEEDF7;border: 1px solid #AED0EA;color: #222222;font-weight: bold;height:28px;">
+<div style="background: url('${b.base}/static/images/semesterBarBg.png') repeat-x scroll 50% 50% #DEEDF7;border: 1px solid #AED0EA;color: #222222;font-weight: bold;height:28px;">
   [@b.form name="indexForm" action="!index" target="main" theme="html"]
   <div style="margin-left:4px;margin-top:2px;float:left;line-height:16px;height:16px;">
-    <label for="indexForm.session.id">审核批次:</label>
-    [#if sessions?size == 0]
-      <select id="indexForm.session.id" name="session.id" style="width:200px;">
+    <label for="indexForm.batch.id">审核批次:</label>
+    [#if batches?size == 0]
+      <select id="indexForm.batch.id" name="batch.id" style="width:200px;">
         <option>缺少毕业审核批次</option>
       </select>
     [#else]
-      [#assign selectedId = Parameters['session.id']!sessions[0].id?string /]
-      <select id="indexForm.session.id" name="session.id" style="width:200px;" onchange="bg.form.submit(this.form)">
-        [#list sessions as session]
-        <option value="${session.id}"[#if session.id?string == selectedId] selected[/#if]>${session.name}</option>
+      [#assign selectedId = Parameters['batch.id']!batches[0].id?string /]
+      <select id="indexForm.batch.id" name="batch.id" style="width:200px;" onchange="bg.form.submit(this.form)">
+        [#list batches as batch]
+        <option value="${batch.id}"[#if batch.id?string == selectedId] selected[/#if]>${batch.name}</option>
         [/#list]
       </select>
     [/#if]
   </div>
   [@b.toolbar title=""]
-    [#if sessions?size > 0]
+    [#if batches?size > 0]
     bar.addItem("补考统计", function() {
       bg.form.submit(document.indexForm, "${b.url("!squadStat")}", "_blank");
     });

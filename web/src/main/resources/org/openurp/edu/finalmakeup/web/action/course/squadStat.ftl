@@ -5,7 +5,7 @@
 [/@]
 
 [@b.form action="!squadStat" theme="list"]
-  <input type="hidden" name="session.id" value="${Parameters['session.id']}"/>
+  <input type="hidden" name="batch.id" value="${Parameters['batch.id']}"/>
   [@b.select items=departments name="department.id" value=department! label="院系"  style="width:200px" empty="..." onchange="bg.form.submit(this.form)"/]
 [/@]
 <div class="container">

@@ -1,7 +1,7 @@
 [#ftl]
 [@b.head/]
 [@b.toolbar title="毕业补考名单"/]
-  [@urp_base.semester_bar name="semester.id" value=currentSemester/]
+  [@base.semester_bar name="semester.id" value=currentSemester/]
    <div class="search-container">
      <div class="search-panel">
       [@b.form name="searchForm" action="!search" title="ui.searchForm" target="listFrame" theme="search"]

@@ -3,7 +3,8 @@
   <container>
     <module class="org.openurp.edu.finalmakeup.web.DefaultModule"/>
     <module class="org.openurp.starter.web.ProjectModule" />
-    <module class="org.openurp.edu.grade.service.impl.BindDefaultModule"/>
-    <module class="org.openurp.edu.grade.service.impl.BindConfigModule"/>
+    <module class="org.openurp.edu.finalmakeup.service.DefaultModule"/>
+    <module class="org.openurp.edu.grade.service.DefaultModule"/>
+    <module class="org.openurp.edu.grade.service.ConfigModule"/>
   </container>
 </cdi>

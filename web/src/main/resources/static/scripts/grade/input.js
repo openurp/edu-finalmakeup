@@ -165,7 +165,7 @@ function checkScore(index, input) {
 }
 
 function changeTabIndex(form,tabByStd){
-  this.onReturn = new OnReturn(form);
+  this.onReturn = new beangle.ui.onreturn(form);
     if (this.tabByStd != tabByStd){
         this.tabByStd = tabByStd;
     } else {
