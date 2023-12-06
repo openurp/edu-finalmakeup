@@ -22,7 +22,7 @@ import org.beangle.commons.lang.Strings
 import org.beangle.data.dao.OqlBuilder
 import org.beangle.web.action.annotation.ignore
 import org.beangle.web.action.view.View
-import org.beangle.webmvc.support.action.RestfulAction
+import org.beangle.webmvc.support.action.{ExportSupport, RestfulAction}
 import org.openurp.base.edu.model.Course
 import org.openurp.base.model.{Project, Semester}
 import org.openurp.base.std.model.Student
@@ -30,7 +30,7 @@ import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
 import org.openurp.starter.web.support.ProjectSupport
 
-class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
+class TakerAction extends RestfulAction[FinalMakeupTaker], ProjectSupport, ExportSupport[FinalMakeupTaker] {
   var makeupCourseService: MakeupCourseService = _
 
   override def indexSetting(): Unit = {
@@ -68,7 +68,7 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
 
   def removeTaker(): View = {
     val tasks = Collections.newSet[FinalMakeupCourse]
-    longIds("makeupTaker") foreach { takerId =>
+    getLongIds("makeupTaker") foreach { takerId =>
       val taker = entityDao.get(classOf[FinalMakeupTaker], takerId)
       val task = taker.makeupCourse
       tasks += task
@@ -89,7 +89,7 @@ class TakerAction extends RestfulAction[FinalMakeupTaker] with ProjectSupport {
   }
 
   def addTakers(): View = {
-    val semester = entityDao.get(classOf[Semester], intId("semester"))
+    val semester = entityDao.get(classOf[Semester], getIntId("semester"))
     val courseCode = get("courseCode")
     val crn = get("makeupCourse.crn", "")
     var stdCode = get("stdCodes").orNull

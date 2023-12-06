@@ -48,7 +48,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
 
     put("departmentList", getDeparts)
     val query = OqlBuilder.from(classOf[GraduateBatch], "batch")
-    query.where("batch.project = :project", getProject)
+    query.where("batch.project = :project", project)
     query.orderBy("batch.graduateOn desc,batch.name desc")
     val batches = entityDao.search(query)
     put("batches", batches)
@@ -56,7 +56,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
       case None => batches.head
       case Some(sid) => batches.find(_.id == sid).getOrElse(batches.head)
     }
-    val semester = getSemester(getProject, batch.graduateOn)
+    val semester = getSemester(project, batch.graduateOn)
     put("semester", semester)
     forward()
   }
@@ -81,7 +81,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   def newCourseList(): View = {
     given project: Project = getProject
 
-    val batch = entityDao.get(classOf[GraduateBatch], longId("batch"))
+    val batch = entityDao.get(classOf[GraduateBatch], getLongId("batch"))
     val semester = getSemester(project, batch.graduateOn)
     put("semester", semester)
 
@@ -125,7 +125,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     }
   }
 
-  private def builderMakeupQuery[T](builder: OqlBuilder[T], batch: GraduateBatch, semester: Semester) = {
+  private def builderMakeupQuery[T](builder: OqlBuilder[T], batch: GraduateBatch, semester: Semester) :Unit= {
     builder.where("courseResult.passed=false")
     builder.where("courseResult.course.hasMakeup=true")
     // 按照有不及格的成绩来，不要采用courseResult.scores is not null
@@ -144,8 +144,8 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   def addCourse(): View = {
-    val courseDepartClassIds = ids("makeupStat", classOf[String])
-    val batch = entityDao.get(classOf[GraduateBatch], longId("batch"))
+    val courseDepartClassIds = getIds("makeupStat", classOf[String])
+    val batch = entityDao.get(classOf[GraduateBatch], getLongId("batch"))
     val semester = getSemester(getProject, batch.graduateOn)
     put("semester", semester)
     for (courseDepartClassId <- courseDepartClassIds) {
@@ -187,7 +187,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   def merge(): View = {
-    val removeds = entityDao.find(classOf[FinalMakeupCourse], longIds("makeupCourse")).toBuffer
+    val removeds = entityDao.find(classOf[FinalMakeupCourse], getLongIds("makeupCourse")).toBuffer
     val target = removeds.head
     removeds -= target
     for (makeupCourse <- removeds) {
@@ -199,7 +199,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   def split(): View = {
-    val makeupCourseId = longId("makeupCourse")
+    val makeupCourseId = getLongId("makeupCourse")
     val makeupCourse = entityDao.get(classOf[FinalMakeupCourse], makeupCourseId)
     makeupCourseService.split(makeupCourse)
     redirect("search", "info.save.success")
@@ -208,7 +208,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   def squadStat(): View = {
     given project: Project = getProject
 
-    val batch = entityDao.get(classOf[GraduateBatch], longId("batch"))
+    val batch = entityDao.get(classOf[GraduateBatch], getLongId("batch"))
     val semester = getSemester(getProject, batch.graduateOn)
     put("semester", semester)
     val departs = getDeparts
@@ -237,7 +237,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   def editTeacher: View = {
-    val removeds = entityDao.find(classOf[FinalMakeupCourse], longIds("makeupCourse"))
+    val removeds = entityDao.find(classOf[FinalMakeupCourse], getLongIds("makeupCourse"))
     val departTeacherMap = Collections.newMap[Department, Seq[Teacher]]
     for (makeupCourse <- removeds) {
       departTeacherMap.get(makeupCourse.depart) match {
@@ -252,7 +252,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   def designationTeacher(): View = {
-    val makeupCourses = entityDao.find(classOf[FinalMakeupCourse], longIds("makeupCourse"))
+    val makeupCourses = entityDao.find(classOf[FinalMakeupCourse], getLongIds("makeupCourse"))
     for (makeupCourse <- makeupCourses) {
       getLong(makeupCourse.id.toString) foreach { teacherId =>
         makeupCourse.teacher = entityDao.find(classOf[Teacher], teacherId)
@@ -263,17 +263,17 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   def takers(): View = {
-    put("makeupCourse", entityDao.get(classOf[FinalMakeupCourse], longId("makeupCourseId")))
+    put("makeupCourse", entityDao.get(classOf[FinalMakeupCourse], getLongId("makeupCourseId")))
     forward()
   }
 
   def gradeTable(): View = {
-    put("makeupCourses", entityDao.find(classOf[FinalMakeupCourse], longIds("makeupCourse")))
+    put("makeupCourses", entityDao.find(classOf[FinalMakeupCourse], getLongIds("makeupCourse")))
     forward()
   }
 
   def printGrade(): View = {
-    val a = longIds("makeupCourse")
+    val a = getLongIds("makeupCourse")
     val builder = OqlBuilder.from(classOf[FinalMakeupCourse], "makeupCourse")
     builder.where("makeupCourse.id in (:makeupCourseIds)", a)
     builder.where("makeupCourse.status > 0")
@@ -297,7 +297,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   def input(): View = {
-    val makeupCourse = entityDao.get(classOf[FinalMakeupCourse], longId("makeupCourse"))
+    val makeupCourse = entityDao.get(classOf[FinalMakeupCourse], getLongId("makeupCourse"))
     put("makeupCourse", makeupCourse)
     if (makeupCourse.status > 0) {
       return redirect("printGrade", "&makeupCourseIds=" + makeupCourse.id, "info.save.success")
@@ -316,7 +316,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   override def save(): View = {
-    val makeupCourse = entityDao.get(classOf[FinalMakeupCourse], longId("makeupCourse"))
+    val makeupCourse = entityDao.get(classOf[FinalMakeupCourse], getLongId("makeupCourse"))
     val markStyle = entityDao.get(classOf[GradingMode], GradingMode.Percent)
     val gradeMap = getCourseGradeMap(makeupCourse)
     val grades = Collections.newBuffer[CourseGrade]
@@ -380,7 +380,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
   }
 
   def editPublished(): View = {
-    val makeupCourseIds = longIds("makeupCourse")
+    val makeupCourseIds = getLongIds("makeupCourse")
     val published = getBoolean("published", true)
     if (null != makeupCourseIds) {
       val makeupCourses = entityDao.find(classOf[FinalMakeupCourse], makeupCourseIds)

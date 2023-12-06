@@ -1,5 +1,5 @@
-import org.openurp.parent.Dependencies._
-import org.openurp.parent.Settings._
+import org.openurp.parent.Dependencies.*
+import org.openurp.parent.Settings.*
 
 ThisBuild / organization := "org.openurp.edu.finalmakeup"
 ThisBuild / version := "0.0.26-SNAPSHOT"
@@ -23,10 +23,10 @@ ThisBuild / developers := List(
 ThisBuild / description := "OpenURP Starter"
 ThisBuild / homepage := Some(url("http://openurp.github.io/edu-finalmakeup/index.html"))
 
-val apiVer = "0.31.0.Beta2"
-val starterVer = "0.2.10"
-val baseVer = "0.3.3"
-val coreVer = "0.0.5"
+val apiVer = "0.34.5"
+val starterVer = "0.3.18"
+val baseVer = "0.4.15"
+val coreVer = "0.0.14"
 val openurp_edu_api = "org.openurp.edu" % "openurp-edu-api" % apiVer
 val openurp_std_api = "org.openurp.std" % "openurp-std-api" % apiVer
 val openurp_stater_web = "org.openurp.starter" % "openurp-starter-web" % starterVer
