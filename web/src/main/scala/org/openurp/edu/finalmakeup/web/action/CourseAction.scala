@@ -25,6 +25,7 @@ import org.beangle.web.action.annotation.ignore
 import org.beangle.web.action.view.View
 import org.beangle.webmvc.support.action.RestfulAction
 import org.openurp.base.edu.model.*
+import org.openurp.base.hr.model.Teacher
 import org.openurp.base.model.{Department, Project, Semester}
 import org.openurp.base.std.model.{Squad, Student}
 import org.openurp.code.edu.model.{CourseTakeType, ExamStatus, GradeType, GradingMode}
@@ -35,7 +36,7 @@ import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
 import org.openurp.edu.grade.model.*
 import org.openurp.edu.grade.service.CourseGradeCalculator
 import org.openurp.starter.web.support.ProjectSupport
-import org.openurp.std.graduation.model.{GraduateResult, GraduateBatch}
+import org.openurp.std.graduation.model.{GraduateBatch, GraduateResult}
 
 import java.time.{Instant, LocalDate}
 
@@ -63,7 +64,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
 
   override def search(): View = {
     val builder = getQueryBuilder
-    this.addDepart(builder, "makeupCourse.depart")
+    queryByDepart(builder, "makeupCourse.depart")
     put("makeupCourses", entityDao.search(builder))
     forward()
   }
@@ -85,7 +86,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     val semester = getSemester(project, batch.graduateOn)
     put("semester", semester)
 
-    val builder: OqlBuilder[Any] = OqlBuilder.from(classOf[CourseAuditResult].getName, "courseResult")
+    val builder: OqlBuilder[Any] = OqlBuilder.from(classOf[AuditCourseResult].getName, "courseResult")
     builderMakeupQuery(builder, batch, semester)
     builder.where("std2.state.department in (:department)", getDeparts)
     builder.join("left", "std2.state.squad", "squad")
@@ -155,7 +156,7 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
       var squad: Squad = null
       if (!("null" == idArray(2))) squad = entityDao.get(classOf[Squad], Numbers.toLong(idArray(2)))
 
-      val builder = OqlBuilder.from(classOf[CourseAuditResult], "courseResult")
+      val builder = OqlBuilder.from(classOf[AuditCourseResult], "courseResult")
       builderMakeupQuery(builder, batch, semester)
       builder.where("courseResult.course = :course", course)
       if (null == squad) builder.where("std2.state.squad is null", squad)

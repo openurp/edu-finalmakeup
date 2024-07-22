@@ -17,7 +17,7 @@
 
 package org.openurp.edu.finalmakeup.web.helper
 
-import org.beangle.commons.bean.orderings.MultiPropertyOrdering
+import org.beangle.commons.bean.orderings.PropertyOrdering
 import org.beangle.commons.collection.Collections
 import org.openurp.base.edu.model.Course
 import org.openurp.base.std.model.Squad
@@ -30,7 +30,7 @@ class MakeupMatrix {
   var squads: collection.Seq[Squad] = _
 
   def build(): Unit = {
-    squads = squadStat.keys.toBuffer.sorted(new MultiPropertyOrdering("department,name"))
+    squads = squadStat.keys.toBuffer.sorted(PropertyOrdering.by("department,name"))
     courses = courseStat.keys.toBuffer.sorted(new Ordering[Course]() {
       override def compare(first: Course, second: Course): Int = courseStat(second) - courseStat(first)
     })
