@@ -76,8 +76,8 @@
         </tr>
     </table>
     <div class="grid">
-    <table  class="gridtable" align="center" style="width:90%;border:1px solid;" onkeypress="gradeTable.onReturn.focus(event)">
-        <tr align="center" class="gridhead">
+    <table  class="grid-table" align="center" style="width:90%;" onkeypress="gradeTable.onReturn.focus(event)">
+        <tr align="center" class="grid-head">
         [#list 1..2 as i]
             <td align="center" width="80px">序号</td>
             <td align="center" width="120px">学号</td>

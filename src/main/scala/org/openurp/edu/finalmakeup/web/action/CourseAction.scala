@@ -29,7 +29,6 @@ import org.openurp.base.hr.model.Teacher
 import org.openurp.base.model.{Department, Project, Semester}
 import org.openurp.base.std.model.{Squad, Student}
 import org.openurp.code.edu.model.{CourseTakeType, ExamStatus, GradeType, GradingMode}
-import org.openurp.code.service.CodeService
 import org.openurp.edu.exam.model.{FinalMakeupCourse, FinalMakeupTaker}
 import org.openurp.edu.finalmakeup.service.MakeupCourseService
 import org.openurp.edu.finalmakeup.web.helper.{MakeupMatrix, MakeupStat}
@@ -126,12 +125,13 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
     }
   }
 
-  private def builderMakeupQuery[T](builder: OqlBuilder[T], batch: GraduateBatch, semester: Semester) :Unit= {
+  private def builderMakeupQuery[T](builder: OqlBuilder[T], batch: GraduateBatch, semester: Semester): Unit = {
     builder.where("courseResult.passed=false")
     builder.where("courseResult.course.hasMakeup=true")
     // 按照有不及格的成绩来，不要采用courseResult.scores is not null
     builder.where("exists(from " + classOf[CourseGrade].getName + " cg where cg.std=std2 and cg.course=courseResult.course)")
-    builder.where("std2.graduateOn =:graduateOn", batch.graduateOn)
+    //不限定是否是应届毕业，有业务人员判断
+    //    builder.where("std2.graduateOn =:graduateOn", batch.graduateOn)
     builder.join("courseResult.groupResult.planResult.std", "std2")
     builder.where("exists(from " + classOf[GraduateResult].getName + " gr where gr.batch.id=" + batch.id + " and gr.std=std2)")
     val hql = new StringBuilder
@@ -167,19 +167,16 @@ class CourseAction extends RestfulAction[FinalMakeupCourse] with ProjectSupport 
       for (result <- results) {
         val std = result.groupResult.planResult.std
         if (!proccessed.contains(std)) {
-          var courseType = result.groupResult.courseType
-          if (courseType.id < 0) courseType = result.groupResult.courseType
-          if (null != courseType) {
-            proccessed.add(std)
-            val taker = new FinalMakeupTaker(makeupCourse, std, result.groupResult.courseType)
-            result.scores match {
-              case null => taker.scores = "--"
-              case e => taker.scores = e
-            }
-            taker.remark = result.remark
-            makeupCourse.takers += taker
-            makeupCourse.stdCount = makeupCourse.takers.size
+          val courseType = result.groupResult.courseType
+          proccessed.add(std)
+          val taker = new FinalMakeupTaker(makeupCourse, std, courseType)
+          result.scores match {
+            case null => taker.scores = "--"
+            case e => taker.scores = e
           }
+          taker.remark = result.remark
+          makeupCourse.takers += taker
+          makeupCourse.stdCount = makeupCourse.takers.size
         }
       }
       entityDao.saveOrUpdate(makeupCourse)

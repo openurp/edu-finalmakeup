@@ -34,21 +34,10 @@ val openurp_base_tag = "org.openurp.base" % "openurp-base-tag" % baseVer
 val openurp_edu_core = "org.openurp.edu" % "openurp-edu-core" % coreVer
 
 lazy val root = (project in file("."))
-  .settings()
-  .aggregate(web, webapp)
-
-lazy val web = (project in file("web"))
+  .enablePlugins(WarPlugin,TomcatPlugin,UndertowPlugin)
   .settings(
-    name := "openurp-edu-finalmakeup-web",
+    name := "openurp-edu-finalmakeup-webapp",
     common,
     libraryDependencies ++= Seq(openurp_stater_web, openurp_base_tag,openurp_edu_core)
   )
 
-lazy val webapp = (project in file("webapp"))
-  .enablePlugins(WarPlugin,TomcatPlugin,UndertowPlugin)
-  .settings(
-    name := "openurp-edu-finalmakeup-webapp",
-    common
-  ).dependsOn(web)
-
-publish / skip := true

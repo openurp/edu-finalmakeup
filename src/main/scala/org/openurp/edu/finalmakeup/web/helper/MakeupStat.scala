@@ -28,7 +28,7 @@ class MakeupStat(val datas: Array[AnyRef]) {
   var courseCode: String = _
   var courseName: String = _
   var stdDepartmentName: String = _
-  var stdSquadId: Option[Int] = None
+  var stdSquadId: Option[Long] = None
   var stdSquadCode: Option[String] = None
   var stdSquadName: Option[String] = None
   var stdCount = 0
@@ -39,7 +39,7 @@ class MakeupStat(val datas: Array[AnyRef]) {
   courseName = datas(3).asInstanceOf[String]
   stdDepartmentName = datas(4).asInstanceOf[String]
   if (null != datas(5)) {
-    stdSquadId = Some(datas(5).asInstanceOf[Number].intValue)
+    stdSquadId = Some(datas(5).asInstanceOf[Number].longValue())
     stdSquadCode = Some(datas(6).asInstanceOf[String])
     stdSquadName = Some(datas(7).asInstanceOf[String])
   }

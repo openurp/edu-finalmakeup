@@ -9,8 +9,8 @@
   [@b.select items=departments name="department.id" value=department! label="院系"  style="width:200px" empty="..." onchange="bg.form.submit(this.form)"/]
 [/@]
 <div class="container">
-  <table class="gridtable" style="border:0.5px solid #006CB2">
-   <thead  class="gridhead">
+  <table class="grid-table" style="border:0.5px solid #006CB2">
+   <thead  class="grid-head">
     <tr>
       <td width="40px">序号</td>
       <td>班级</td>

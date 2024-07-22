@@ -15,8 +15,8 @@
 [/@]
   <form action="course!designationTeacher.action" name="defaultFormitem" method="post" onsubmit="return false;">
     <center>
-     <table class="gridtable" width="100%" sortable="true" id="listTable" style="font-size:12px">
-     <tr align="center" class="gridhead" >
+     <table class="grid-table" width="100%" sortable="true" id="listTable" style="font-size:12px">
+     <tr align="center" class="grid-head" >
       <td class="select">
        <input type="checkBox" name="makeupCourseIds" class="box" checked>
       </td>
