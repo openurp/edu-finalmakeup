@@ -91,20 +91,18 @@ class TakerAction extends RestfulAction[FinalMakeupTaker], ProjectSupport, Expor
   def addTakers(): View = {
     val semester = entityDao.get(classOf[Semester], getIntId("semester"))
     val courseCode = get("courseCode")
-    val crn = get("makeupCourse.crn", "")
+    val makeupCourseId = getLong("makeupCourse.id")
     var stdCode = get("stdCodes").orNull
     stdCode = Strings.replace(stdCode, " ", ",")
     val stdCodes = Strings.split(stdCode, ",")
-    val stds = entityDao.findBy(classOf[Student], "user.code", stdCodes.toList)
+    val stds = entityDao.findBy(classOf[Student], "code" -> stdCodes.toList, "project" -> getProject)
 
     if (stds.isEmpty) {
       redirect("search", "&makeupTaker.makeupCourse.semester.id=" + semester.id, "不存在该学号学生")
     } else {
       var result = "info.save.success"
-      if (Strings.isNotBlank(crn)) {
-        val query = OqlBuilder.from(classOf[FinalMakeupCourse], "mc").where("mc.crn=:crn", crn)
-        query.where("mc.semester=:semester", semester)
-        val makeupCourse = entityDao.search(query).head
+      if (makeupCourseId.nonEmpty) {
+        val makeupCourse = entityDao.get(classOf[FinalMakeupCourse], makeupCourseId.get)
         val rs = Collections.newBuffer[String]
         stds foreach { std =>
           val msg = makeupCourseService.addTaker(makeupCourse, std)
