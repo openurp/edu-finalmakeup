@@ -18,8 +18,6 @@
 package org.openurp.edu.finalmakeup.web
 
 import org.beangle.commons.cdi.BindModule
-import org.openurp.code.service.impl.CodeServiceImpl
-import org.openurp.edu.finalmakeup.service.impl.{MakeupCourseCrnGeneratorImpl, MakeupCourseServiceImpl}
 import org.openurp.edu.finalmakeup.web.action.{CourseAction, TakerAction}
 
 class DefaultModule extends BindModule {

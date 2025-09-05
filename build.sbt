@@ -2,7 +2,7 @@ import org.openurp.parent.Dependencies.*
 import org.openurp.parent.Settings.*
 
 ThisBuild / organization := "org.openurp.edu.finalmakeup"
-ThisBuild / version := "0.0.29-SNAPSHOT"
+ThisBuild / version := "0.0.29"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -23,10 +23,10 @@ ThisBuild / developers := List(
 ThisBuild / description := "OpenURP Starter"
 ThisBuild / homepage := Some(url("http://openurp.github.io/edu-finalmakeup/index.html"))
 
-val apiVer = "0.44.0"
-val starterVer = "0.3.58"
-val baseVer = "0.4.51"
-val coreVer = "0.3.11"
+val apiVer = "0.46.0"
+val starterVer = "0.4.0"
+val baseVer = "0.4.55"
+val coreVer = "0.3.16"
 val openurp_edu_api = "org.openurp.edu" % "openurp-edu-api" % apiVer
 val openurp_std_api = "org.openurp.std" % "openurp-std-api" % apiVer
 val openurp_stater_web = "org.openurp.starter" % "openurp-starter-web" % starterVer
